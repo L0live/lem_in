@@ -1,16 +1,5 @@
 #include	"lem_in.h"
 
-void	ft_lstprint(t_list *lst){
-	if (!lst)
-		return ;
-	
-	while (lst){
-		ft_print(lst->content);
-		lst = lst->next;
-	}
-	return ;
-};
-
 void	read_stdin(t_list **stdin_content){
 	
 	char *line = get_next_line(STDIN_FILENO);
