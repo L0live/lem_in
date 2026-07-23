@@ -1,13 +1,7 @@
 #include	"lem_in.h"
 
-void	ft_lstprint(t_list *lst){
-	while (lst){
-		ft_printf("%s", lst->content);
-		lst = lst->next;
-	}
-	return ;
-};
-
+=======
+>>>>>>> cbdcf5339f51885e9037b403f5f7b686625225ba
 void	read_stdin(t_list **stdin_content){
 	char *line;
 
