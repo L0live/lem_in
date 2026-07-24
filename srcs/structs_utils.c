@@ -79,6 +79,17 @@ void    room_addlink(t_room *rooms, int room_nbr, int link_nbr) {
     room_addlink(rooms, link_nbr, room_nbr);
 }
 
+void    free_rooms(t_room *rooms) {
+    t_room *current = rooms;
+    while (current != NULL) {
+        t_room *next = current->next;
+        if (current->links != NULL)
+            free(current->links);
+        free(current);
+        current = next;
+    }
+}
+
 // typedef struct data_s{
 // 	int		total_ants;
 // 	t_room	**rooms;

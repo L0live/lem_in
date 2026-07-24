@@ -4,7 +4,7 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
 SRCS_FOLDER=srcs/
 # SRCS_BONUS_FOLDER=srcs_bonus/
-SRCS=main.c parsing.c structs_utils.c
+SRCS=main.c parsing.c structs_utils.c visu.c
 # SRCS_BONUS=main_bonus.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))

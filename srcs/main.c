@@ -1,13 +1,24 @@
 #include	"../includes/lem_in.h"
 
-void print_room(t_room *room){
+void print_room(t_data *data){
+	t_room *room = data->rooms;
 
+	ft_printf("\n\n##### Lem_in Data #####\n\n");
+	ft_printf("Total ants: %d\n", data->total_ants);
 	while (room){
-		ft_printf("\n\nid de la room %d\n", room->id);
-		ft_printf("x %d, ", room->x);
-		ft_printf("y %d\n", room->y);
-		for (int i = 0; i < room->links_size; i++)
-			ft_printf("%d - %d\n", room->id, room->links[i]);
+		if (room == data->start)
+			ft_printf("\nRoom id: %d (Start)\n", room->id);
+		else if (room == data->end)
+			ft_printf("\nRoom id: %d (End)\n", room->id);
+		else
+			ft_printf("\nRoom id: %d\n", room->id);
+		ft_printf("	At x: %d, y: %d\n", room->x, room->y);
+		ft_printf("	Linked to: ");
+		for (int i = 0; i < room->links_size - 1; i++)
+			ft_printf("%d, ", room->links[i]);
+		if (room->links_size > 0)
+			ft_printf("%d\n", room->links[room->links_size - 1]);
+
 		room = room->next;
 	}
 	return ;
@@ -27,16 +38,26 @@ void	read_stdin(t_list **stdin_content){
 };
 
 int main(void){
-	
 	t_list	*stdin_content = NULL;
 	t_data	data;
+
+	data.total_ants = 0;
+	data.rooms = NULL;
+	data.start = NULL;
+	data.end = NULL;
+	data.matrix = NULL;
+
 	read_stdin(&stdin_content);
 	ft_lstprint(stdin_content);
 	
 	parsing(stdin_content, &data);
-	// printf("%d", parsing(stdin_content, &data));
-	print_room(data.rooms);
-
+	print_room(&data);
 	ft_lstclear(&stdin_content, &free);
+
+	data.matrix = create_matrix(data.rooms);
+	print_matrix(data.matrix);
+
+	free_rooms(data.rooms);
+	free_matrix(data.matrix);
 	return (0);
 };
