@@ -16,7 +16,7 @@ void	ft_lstprint(t_list *lst){
 		return ;
 	
 	while (lst){
-		ft_printf("%s", (char *)lst->content);
+		ft_printf("%s\n", (char *)lst->content);
 		lst = lst->next;
 	}
 	return ;

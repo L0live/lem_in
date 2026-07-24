@@ -4,12 +4,12 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
 SRCS_FOLDER=srcs/
 # SRCS_BONUS_FOLDER=srcs_bonus/
-SRCS=main.c 
+SRCS=main.c parsing.c structs_utils.c
 # SRCS_BONUS=main_bonus.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
 OBJS_BONUS=$(addprefix $(OBJS_FOLDER), $(SRCS_BONUS:.c=.o))
-HEADERS=srcs/lem_in.h libft/libft.h
+HEADERS=includes/lem_in.h libft/libft.h
 # HEADERS_BONUS=srcs_bonus/lem_in_bonus.h libft/libft.h
 # MLX=minilibx-linux/libmlx.a
 LIBFT=libft/libft.a
