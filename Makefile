@@ -1,17 +1,17 @@
 NAME=lem_in
-NAME_BONUS=lem_in_bonus
+NAME_BONUS=visualizer
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
-CFLAGS_BONUS=-Wall -Wextra -Werror -g -lglfw -lGL -lm -ldl
+CFLAGS_BONUS=$(CFLAGS) -lglfw -lGL -lm -ldl
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
-SRCS=main.c parsing.c structs_utils.c
-SRCS_BONUS=main.c parsing.c structs_utils.c visu.c ../glad/src/glad.c 
+SRCS=main.c utils.c parsing.c structs_utils.c
+SRCS_BONUS=main_bonus.c utils.c parsing.c structs_utils.c ../glad/src/glad.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
 OBJS_BONUS=$(addprefix $(OBJS_FOLDER), $(SRCS_BONUS:.c=.o))
 HEADERS=includes/lem_in.h libft/libft.h
-HEADERS_BONUS=srcs_bonus/lem_in_bonus.h includes/lem_in.h libft/libft.h glad/include/glad/glad.h glad/include/KHR/khrplatform.h
+HEADERS_BONUS=includes/lem_in_bonus.h glad/include/glad/glad.h glad/include/KHR/khrplatform.h
 LIBFT=libft/libft.a
 
 all: $(NAME)
@@ -33,7 +33,7 @@ $(OBJS_FOLDER)%.o: $(SRCS_FOLDER)%.c $(HEADERS)
 	@echo "Compiling $<..."
 
 # Règle de compilation des .o dans objs/ pour la version bonus
-$(OBJS_FOLDER)%.o: $(SRCS_BONUS_FOLDER)%.c $(HEADERS_BONUS)
+$(OBJS_FOLDER)%.o: $(SRCS_BONUS_FOLDER)%.c $(HEADERS) $(HEADERS_BONUS)
 	@mkdir -p $(OBJS_FOLDER)
 	@$(CC) $(CFLAGS_BONUS) -c $< -o $@ -I .
 	@echo "Compiling $<..."
@@ -44,7 +44,7 @@ clean:
 	@echo "All objects cleaned"
 
 fclean: clean
-	@rm -f $(NAME) $(NAME)_bonus
+	@rm -f $(NAME) $(NAME_BONUS)
 	@$(MAKE) -s -C libft/ fclean
 	@echo "Executable removed"
 

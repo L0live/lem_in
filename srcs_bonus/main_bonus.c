@@ -1,4 +1,4 @@
-#include	"../includes/lem_in.h"
+#include	"../includes/lem_in_bonus.h"
 
 int main(void){
 	t_list	*stdin_content = NULL;
@@ -10,8 +10,8 @@ int main(void){
 	init_data(&data);
 	if (!parsing(stdin_content, &data))
 		return (1);
-
 	print_room(&data);
+
 	ft_lstclear(&stdin_content, &free);
 
 	free_rooms(data.rooms);

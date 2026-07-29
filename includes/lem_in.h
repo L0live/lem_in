@@ -6,13 +6,9 @@
 # include	<stdlib.h>
 # include	<stdbool.h>
 
-
-
 typedef struct ant_queue_s{
-	//liste qui va contenir l'ensemble de sommet parcourus qu'on va set au fur et a mesure de l'algorithme de parcours
 	t_list		*queue;
-	int 		move_count;
-
+	int 		size;
 	struct ant_queue_s	*next;
 } t_ant_queue;
 
@@ -32,8 +28,12 @@ typedef struct data_s{
 	int			end_id;
 	t_room		*rooms;
 	t_ant_queue	*ant_queue;
-	char		**matrix;
 } t_data;
+
+// utils.c
+void    init_data(t_data *data);
+void	print_room(t_data *data);
+void	read_stdin(t_list **stdin_content);
 
 // structs_utils.c
 int		room_addnew(t_room **rooms, int id, char *name, int x, int y);
