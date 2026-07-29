@@ -42,7 +42,7 @@ int    handle_new_room(t_data *data, char *line, int new_id){
 	y = ft_atoi(split_line[2]);
 	free_split(split_line);
 	
-	if(room_addnew(&data->rooms, id, split_line[0], x, y)) {
+	if(room_addnew(&data->rooms, id, name, x, y)) {
 		free(name);
 		return (1);
 	}
