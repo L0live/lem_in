@@ -8,7 +8,7 @@ int main(void){
 	ft_lstprint(stdin_content);
 	
 	init_data(&data);
-	if (!parsing(stdin_content, &data))
+	if (parsing(stdin_content, &data))
 		return (1);
 	print_room(&data);
 
