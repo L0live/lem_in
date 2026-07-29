@@ -1,12 +1,5 @@
 #include "../includes/lem_in.h"
 
-void    init_data(t_data *data){
-    data->total_ants = 0;
-    data->rooms = NULL;
-    data->start_id = -1;
-    data->end_id = -1;
-}
-
 void    print_room(t_data *data){
 	t_room *room = data->rooms;
 
@@ -33,14 +26,26 @@ void    print_room(t_data *data){
 
 }
 
-void	read_stdin(t_list **stdin_content){
+int	read_stdin(t_list **stdin_content){
 	char *line;
+	t_list *tmp;
 
 	line = get_next_line(STDIN_FILENO);
 	while (line != NULL ){
 		if (line[ft_strlen(line) - 1] == '\n')
 			line[ft_strlen(line) - 1] = '\0';
-		ft_lstadd_back(stdin_content, ft_lstnew(line));
+		if (line[0] != '\0') {
+			tmp = ft_lstnew(line);
+			if (!tmp) {
+				free(line);
+				ft_lstclear(stdin_content, &free);
+				return(-1);
+			}
+			ft_lstadd_back(stdin_content, tmp);
+		}
+		else
+			free(line);
 		line = get_next_line(STDIN_FILENO);
 	}
+	return(0);
 };

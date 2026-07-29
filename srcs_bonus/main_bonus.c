@@ -4,15 +4,18 @@ int main(void){
 	t_list	*stdin_content = NULL;
 	t_data	data;
 
-	read_stdin(&stdin_content);
+	if (read_stdin(&stdin_content) == -1)
+		return (-1);
 	ft_lstprint(stdin_content);
 	
 	init_data(&data);
-	if (parsing(stdin_content, &data))
-		return (1);
-	print_room(&data);
-
+	if (parsing(stdin_content, &data) == -1) {
+		ft_lstclear(&stdin_content, &free);
+		return (-1);
+	}
 	ft_lstclear(&stdin_content, &free);
+
+	print_room(&data);
 
 	free_rooms(data.rooms);
 	return (0);

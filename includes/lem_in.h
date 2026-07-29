@@ -31,9 +31,8 @@ typedef struct data_s{
 } t_data;
 
 // utils.c
-void    init_data(t_data *data);
 void	print_room(t_data *data);
-void	read_stdin(t_list **stdin_content);
+int		read_stdin(t_list **stdin_content);
 
 // structs_utils.c
 int		room_addnew(t_room **rooms, int id, char *name, int x, int y);
@@ -41,6 +40,7 @@ int		room_addlink(t_room *rooms, int room_id, int link_id);
 t_room	*room_getby_id(t_room *rooms, int id);
 t_room	*room_getby_name(t_room *rooms, char *name);
 void	free_rooms(t_room *rooms);
+void    init_data(t_data *data);
 
 // parsing.c
 int		parsing(t_list *stdin_content, t_data *data);

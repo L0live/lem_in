@@ -10,7 +10,7 @@ t_ant_queue    *queue_addnew(t_ant_queue *queue){
 int     bfs(t_data *data){
     t_ant_queue *queue = malloc(sizeof(t_ant_queue));
     if (!queue)
-        return (1);
+        return (-1);
 
     queue = add_new(queue);
 
