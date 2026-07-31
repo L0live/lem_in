@@ -15,7 +15,7 @@ int main(void){
 	}
 	ft_lstclear(&stdin_content, &free);
 
-	print_room(&data);
+	bfs(&data);
 
 	free_rooms(data.rooms);
 	return (0);
