@@ -15,8 +15,9 @@ int main(void){
 	}
 	ft_lstclear(&stdin_content, &free);
 
-	bfs(&data);
+	breadthfirst_search(&data);
 
+	free_paths(data.paths);
 	free_rooms(data.rooms);
 	return (0);
 };

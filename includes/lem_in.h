@@ -6,12 +6,12 @@
 # include	<stdlib.h>
 # include	<stdbool.h>
 
-typedef struct ant_path_s{
+typedef struct path_s{
 	t_list		*queue;
 	int 		size;
-	struct ant_path_s	*parent_path;
-	struct ant_path_s	*next;
-} t_ant_path;
+	struct path_s	*parent_path;
+	struct path_s	*next;
+} t_path;
 
 typedef struct room_s{
 	int				id;
@@ -28,7 +28,7 @@ typedef struct data_s{
 	int			start_id;
 	int			end_id;
 	t_room		*rooms;
-	t_ant_path	*ant_path;
+	t_path		*paths;
 } t_data;
 
 // utils.c
@@ -47,9 +47,11 @@ void    init_data(t_data *data);
 int		parsing(t_list *stdin_content, t_data *data);
 
 //bfs.c
-t_ant_path    *path_addnew(t_ant_path *queue);
-void    print_ant_path(t_ant_path *queue);
-int     bfs(t_data *data);
+int		path_addnew(t_path **path, t_room *first_room, t_path *parent_path);
+int 	path_queue_addnew(t_path *path, t_room *room);
+void    free_paths(t_path *paths);
+void    print_paths(t_path *paths);
+int     breadthfirst_search(t_data *data);
 
 
 #endif

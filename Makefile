@@ -5,7 +5,7 @@ CFLAGS=-Wall -Wextra -Werror -g
 CFLAGS_BONUS=$(CFLAGS) -lglfw -lGL -lm -ldl
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
-SRCS=main.c utils.c parsing.c structs_utils.c bfs.c
+SRCS=main.c utils.c parsing.c structs_utils.c breadthfirst_search.c
 SRCS_BONUS=main_bonus.c utils.c parsing.c structs_utils.c ../glad/src/glad.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
