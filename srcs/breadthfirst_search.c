@@ -85,8 +85,50 @@ void print_paths(t_path *paths)
 	ft_printf("\n\n");
 };
 
+int room_in_path(t_path *path, int room_id){
+	t_path *parent = path;
+	while (parent){
+		t_list *q = parent->queue;
+		while (q){
+			if (((t_room*)q->content)->id == room_id)
+				return (1);
+			q = q->next;
+		}
+		parent = parent->parent_path;
+	}
+	return (0);
+};
 
-int     breadthfirst_search(t_data *data){
+int	valid_room(t_path *current_path , t_room *child_room, int end_id){
+	if (child_room->visited && child_room->id != 0)
+		return (-1);
+	if (room_in_path(current_path, child_room->id))
+		return (-1);
+	if (child_room->links_size == 1 && child_room->id != end_id)
+		return (-1);
+	return (0);
+};
+
+t_path	*path_readdback(t_path **paths, t_path *current_path){
+	t_path *tmp = *paths;
+	t_path *rtn = NULL;
+
+	if (current_path->next == NULL)
+		return (current_path);
+
+	while (tmp->next != NULL) {
+		if(tmp->next == current_path){
+			rtn = tmp;
+			tmp->next = current_path->next;
+		}
+		tmp = tmp->next;
+	}
+	tmp->next = current_path;
+	current_path->next = NULL;
+	return (rtn);
+};
+
+int breadthfirst_search(t_data *data){
 	t_path *paths = NULL;
 	t_room *current_room = room_getby_id(data->rooms, data->start_id);
 
@@ -94,39 +136,47 @@ int     breadthfirst_search(t_data *data){
 		return (-1);
 
 	data->paths = paths;
+	t_path *current_path = paths;
 
-	t_path  *current_path = paths;
 	while (current_path){
-		for (int i = 0; i < current_room->links_size; i++){
-			t_room *tmp_room = room_getby_id(data->rooms, current_room->links[i]);
-			if ((current_path->parent_path && tmp_room->id == ((t_room*)(ft_lstlast(current_path->parent_path->queue)->content))->id)
-				|| (tmp_room->links_size == 1 && tmp_room->id != data->end_id))
-				continue;
-			if(!tmp_room->visited){
-				if (current_room->links_size > 2) {
-					if (path_addnew(&paths, tmp_room, current_path) == -1)
-						return (-1);
-				}
-				else if (path_queue_addnew(current_path, tmp_room) == -1)
-					return (-1);
-				if (tmp_room->id != data->end_id)
-					tmp_room->visited = true;
-				ft_printf("tmp id :%s, verified :%d\n",tmp_room->name, tmp_room->visited );
-			}
-			else {
-				// t_path *visited_path = get_visited_path(paths, tmp_room->id);
-
-				// int queue_count = path_nlen(visited_path, tmp_room->id);
-				// if (queue_count <= )
-			}
-		}
-		// current_path = get_next_path(paths, step);
-		current_path = current_path->next; // Pas la bonne solution
-		if (!current_path)
-			break;
 		current_room = (t_room *)ft_lstlast(current_path->queue)->content;
+
+		if (current_room->id == data->end_id){
+			current_path = current_path->next;
+			continue;
+		}
+
+		int valid_neighbors = 0;
+		for (int i = 0; i < current_room->links_size; i++){
+			t_room *child_room = room_getby_id(data->rooms, current_room->links[i]);
+			if (valid_room(current_path, child_room, data->end_id) == -1)
+				continue;
+			valid_neighbors++;
+		}
+
+		t_path	*tmp = NULL;
+		for (int i = 0; i < current_room->links_size; i++){
+			t_room *child_room = room_getby_id(data->rooms, current_room->links[i]);
+			if (valid_room(current_path, child_room, data->end_id) == -1)
+				continue;
+			if (valid_neighbors > 1){
+				if (path_addnew(&paths, child_room, current_path) == -1)
+					return (-1);
+			}
+			else{
+				if (path_queue_addnew(current_path, child_room) == -1)
+					return (-1);
+				tmp = current_path;
+				current_path = path_readdback(&paths, current_path);
+			} 
+			if (child_room->id != data->end_id)
+				child_room->visited = true;
+		}
+		if (tmp == current_path)
+			continue;
+		current_path = current_path->next;
 	}
 
 	print_paths(data->paths);
 	return (0);
-};
+}
