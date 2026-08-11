@@ -17,6 +17,13 @@ int main(void){
 
 	print_room(&data);
 
+
+	if(!glfwInit())
+		return -1;
+
+
+
+
 	free_rooms(data.rooms);
 	return (0);
 };

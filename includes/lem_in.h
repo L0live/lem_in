@@ -29,6 +29,7 @@ typedef struct data_s{
 	int			end_id;
 	t_room		*rooms;
 	t_path		*paths;
+	t_list		*valid_paths;
 } t_data;
 
 // utils.c
@@ -48,10 +49,12 @@ int		parsing(t_list *stdin_content, t_data *data);
 
 //bfs.c
 int		path_addnew(t_path **path, t_room *first_room, t_path *parent_path);
-int 	path_queue_addnew(t_path *path, t_room *room);
+int 	path_queue_addnew(t_data *data, t_path *path, t_room *room);
 void    free_paths(t_path *paths);
 void    print_paths(t_path *paths);
 int     breadthfirst_search(t_data *data);
 
+//path_utils.c
+void	join_paths(t_data *data, t_path *current_path);
 
 #endif
