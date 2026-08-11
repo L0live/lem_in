@@ -2,7 +2,8 @@ NAME=lem_in
 NAME_BONUS=visualizer
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
-CFLAGS_BONUS=$(CFLAGS) -lglfw -lGL -lm -ldl
+CFLAGS_BONUS=$(CFLAGS)
+LDLIBS_BONUS=-lglfw -lGL -lm -ldl
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
 SRCS=main.c utils.c parsing.c structs_utils.c breadthfirst_search.c path_utils.c
@@ -11,7 +12,7 @@ OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
 OBJS_BONUS=$(addprefix $(OBJS_FOLDER), $(SRCS_BONUS:.c=.o))
 HEADERS=includes/lem_in.h libft/libft.h
-HEADERS_BONUS=includes/lem_in_bonus.h glad/include/glad/glad.h glad/include/KHR/khrplatform.h
+HEADERS_BONUS=includes/lem_in_bonus.h glad/include/glad/glad.h glad/include/KHR/khrplatform.h includes/linmath.h
 LIBFT=libft/libft.a
 
 all: $(NAME)
@@ -23,7 +24,7 @@ $(NAME): $(LIBFT) $(OBJS)
 bonus: $(NAME_BONUS)
 
 $(NAME_BONUS): $(LIBFT) $(OBJS_BONUS)
-	@$(CC) $(CFLAGS_BONUS) $(OBJS_BONUS) $(LIBFT) -o $@
+	@$(CC) $(CFLAGS_BONUS) $(OBJS_BONUS) $(LIBFT) $(LDLIBS_BONUS) -o $@
 	@echo "\n\nlem_in bonus builded"
 
 # Règle de compilation des .o dans objs/ pour la version principale

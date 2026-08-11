@@ -6,7 +6,10 @@
 # include	<GLFW/glfw3.h>
 
 # include "lem_in.h"
+# include "linmath.h"
 
-
+typedef struct data_visu_s{
+    GLFWwindow  *window;
+} t_data_visu;
 
 #endif
