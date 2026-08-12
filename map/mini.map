@@ -1,0 +1,41 @@
+7
+##start
+a 23 3
+b 16 7
+#comment
+c 16 3
+l 15 15
+d 16 5
+e 9 3
+f 1 5
+g 4 8
+##end
+k 9 5
+h 9 5
+i 9 5
+j 9 5
+m 9 5
+n 9 5
+a-l
+a-k
+l-b
+a-c
+a-h
+a-d
+b-e
+b-f
+b-h
+c-h
+c-g
+d-h
+d-k
+d-i
+e-g
+e-f
+f-g
+f-j
+h-k
+j-k
+e-m
+m-n
+n-k

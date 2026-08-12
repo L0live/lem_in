@@ -16,7 +16,6 @@ int main(void){
 	ft_lstclear(&stdin_content, &free);
 
 	breadthfirst_search(&data);
-	// join_paths(&data);
 
 	free_paths(data.paths);
 	free_rooms(data.rooms);

@@ -32,7 +32,7 @@ int path_queue_addnew(t_data *data, t_path *path, t_room *room){
 	return (0);
 };
 
-int path_addnew(t_path **path, t_room *first_room, t_path *parent_path){
+int path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_path){
 	t_path *new = malloc(sizeof(t_path));
 	if (!new)
 		return (-1);
@@ -45,7 +45,7 @@ int path_addnew(t_path **path, t_room *first_room, t_path *parent_path){
 	new->parent_path = parent_path;
 	new->next = NULL;
 
-	if (first_room && path_queue_addnew(NULL, new, first_room) == -1) {
+	if (first_room && path_queue_addnew(data, new, first_room) == -1) {
 		free(new);
 		return (-1);
 	}
@@ -179,7 +179,7 @@ int breadthfirst_search(t_data *data){
 	t_path *paths = NULL;
 	t_room *current_room = room_getby_id(data->rooms, data->start_id);
 
-	if (path_addnew(&paths, current_room, NULL) == -1)
+	if (path_addnew(NULL, &paths, current_room, NULL) == -1)
 		return (-1);
 
 	data->paths = paths;
@@ -207,7 +207,7 @@ int breadthfirst_search(t_data *data){
 			if (valid_room(current_path, child_room, data->end_id) == -1)
 				continue;
 			if (valid_neighbors > 1){
-				if (path_addnew(&paths, child_room, current_path) == -1)
+				if (path_addnew(data, &paths, child_room, current_path) == -1)
 					return (-1);
 			}
 			else{

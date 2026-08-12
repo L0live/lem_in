@@ -48,7 +48,7 @@ void    init_data(t_data *data);
 int		parsing(t_list *stdin_content, t_data *data);
 
 //bfs.c
-int		path_addnew(t_path **path, t_room *first_room, t_path *parent_path);
+int		path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_path);
 int 	path_queue_addnew(t_data *data, t_path *path, t_room *room);
 void    free_paths(t_path *paths);
 void    print_paths(t_path *paths);
