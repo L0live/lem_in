@@ -93,6 +93,11 @@ void	clean_unused_paths(t_list *paths){
 
 void	attribute_ants(t_data *data) {
 	t_path *best_path = (t_path*)data->valid_paths->content;
+	if (!data->valid_paths->next) {
+		best_path->ants = data->total_ants;
+		best_path->queue = best_path->queue->next;
+		return ;
+	}
 
 	for (int i = 0; i < data->total_ants; i++){
 		t_list *paths = data->valid_paths;
