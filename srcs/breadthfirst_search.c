@@ -151,7 +151,7 @@ t_path	*path_readdback(t_path **paths, t_path *current_path){
 	return (rtn);
 };
 
-void print_valid(void *valid){
+void print_onepath(void *valid){
 	t_path	*path = (t_path *)valid;
 
 	ft_printf("\n\nPath:\n");
@@ -227,7 +227,5 @@ int breadthfirst_search(t_data *data){
 			continue;
 		current_path = current_path->next;
 	}
-
-
 	return (0);
 }

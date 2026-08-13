@@ -55,7 +55,7 @@ int 	path_queue_addnew(t_data *data, t_path *path, t_room *room);
 void    free_paths(t_path *paths);
 void    print_paths(t_path *paths);
 int     breadthfirst_search(t_data *data);
-void	print_valid(void *valid);
+void	print_onepath(void *valid);
 
 //path_utils.c
 void	join_paths(t_data *data, t_path *current_path);
