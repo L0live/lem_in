@@ -57,7 +57,8 @@ int	ants_actions(t_data *data, t_path *path, int *id){
 };
 
 int	ants_actions_loop(t_data *data) {
-	int count = 0;
+	int actions_count = 0;
+	int lignes_count = 0;
 	int ant_id = 1;
 
 	ft_printf("\n");
@@ -66,16 +67,18 @@ int	ants_actions_loop(t_data *data) {
 		t_list *paths = data->valid_paths;
 		while (paths){
 		// ft_printf("((t_path *)paths->content)->size : %d\n", ((t_path *)paths->content)->size);
-			int actions_count = ants_actions(data, paths->content, &ant_id);
-			if (actions_count == -1)
+			int path_actions_count = ants_actions(data, paths->content, &ant_id);
+			if (path_actions_count == -1)
 				return (-1);
-			count += actions_count;
+			actions_count += path_actions_count;
 			paths = paths->next;
 		}
 		ft_printf("\n");
+		lignes_count++;
 		// ft_printf("\tTotal ant restant : %d\n", data->total_ants);
 	}
-	ft_printf("Total de deplacement :%d\n", count);
+	ft_printf("Total d'actions :%d\n", actions_count);
+	ft_printf("Total de lignes :%d\n", lignes_count);
 	return (0);
 };
 
