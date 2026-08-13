@@ -44,6 +44,24 @@ static GLuint	compile_shader(GLenum type, const char *source) {
 	return (shader);
 }
 
+static void cleanup_opengl(GLuint vertex_array,
+                           GLuint vertex_buffer,
+                           GLuint vertex_shader,
+                           GLuint fragment_shader,
+                           GLuint program)
+{
+    if (vertex_shader != 0)
+        glDeleteShader(vertex_shader);
+    if (fragment_shader != 0)
+        glDeleteShader(fragment_shader);
+    if (program != 0)
+        glDeleteProgram(program);
+    if (vertex_buffer != 0)
+        glDeleteBuffers(1, &vertex_buffer);
+    if (vertex_array != 0)
+        glDeleteVertexArrays(1, &vertex_array);
+}
+
 int	main_loop(t_data_visu *data_visu) {
 	
     GLuint vertex_buffer, vertex_array, vertex_shader, fragment_shader, program;
@@ -86,13 +104,15 @@ int	main_loop(t_data_visu *data_visu) {
 	glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
- 
+	
 	vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_text);
 	fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_text);
-	if (vertex_shader == 0 || fragment_shader == 0)
+	program = glCreateProgram();
+	if (vertex_shader == 0 || fragment_shader == 0){
+		cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
 		return (-1);
+	}
  
-    program = glCreateProgram();
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
@@ -100,8 +120,10 @@ int	main_loop(t_data_visu *data_visu) {
 		GLint link_status;
 
 		glGetProgramiv(program, GL_LINK_STATUS, &link_status);
-		if (link_status != GL_TRUE)
+		if (link_status != GL_TRUE){
+			cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
 			return (-1);
+		}
 	}
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
@@ -130,7 +152,7 @@ int	main_loop(t_data_visu *data_visu) {
         ratio = width / (float) height;
  
         glViewport(0, 0, width, height);
-	glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
+		glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
  
         mat4x4_identity(m);
@@ -150,7 +172,7 @@ int	main_loop(t_data_visu *data_visu) {
 	}
 	while( glfwGetKey(data_visu->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	glfwWindowShouldClose(data_visu->window) == 0 );
-
+	cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
 	return (0);
 };
 

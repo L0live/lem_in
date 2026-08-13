@@ -7,8 +7,10 @@
 # include	<stdbool.h>
 
 typedef struct path_s{
-	t_list		*queue;
-	int 		size;
+	t_list			*queue;
+	int 			size;
+	int 			ants;
+	int				id_ants;
 	struct path_s	*parent_path;
 	struct path_s	*next;
 } t_path;
@@ -17,7 +19,7 @@ typedef struct room_s{
 	int				id;
 	char			*name;
 	int				x, y;
-	bool			visited;
+	int				visited;
 	int				*links;
 	int				links_size;
 	struct room_s	*next;
@@ -53,6 +55,7 @@ int 	path_queue_addnew(t_data *data, t_path *path, t_room *room);
 void    free_paths(t_path *paths);
 void    print_paths(t_path *paths);
 int     breadthfirst_search(t_data *data);
+void	print_valid(void *valid);
 
 //path_utils.c
 void	join_paths(t_data *data, t_path *current_path);

@@ -101,4 +101,6 @@ void    init_data(t_data *data){
     data->rooms = NULL;
     data->start_id = -1;
     data->end_id = -1;
+    data->valid_paths = NULL;
+    data->paths = NULL;
 }

@@ -19,7 +19,7 @@ int path_queue_addnew(t_data *data, t_path *path, t_room *room){
 	path->size++;
 
 	if (data && room->id == data->end_id){
-		while (path->parent_path && path->parent_path->parent_path){
+		while (path->parent_path && (path->parent_path->parent_path || path->parent_path->size > 1)){
 			ft_lstadd_back(&path->parent_path->queue, path->queue);
 			path->queue = path->parent_path->queue;
 			path->parent_path->size = path->size;
@@ -43,6 +43,7 @@ int path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_
 	else
 		new->size = 0;
 	new->parent_path = parent_path;
+	new->ants = 0;
 	new->next = NULL;
 
 	if (first_room && path_queue_addnew(data, new, first_room) == -1) {
@@ -82,6 +83,7 @@ void print_paths(t_path *paths)
 	while (path != NULL){
 		ft_printf("\n\nPath %d :\n", path_num++);
 		ft_printf("	size : %d\n", path->size);
+		ft_printf("	ants : %d\n", path->ants);
 		if(path->parent_path)
 		ft_printf("	parent queue : ");
 		
@@ -153,26 +155,28 @@ void print_valid(void *valid){
 	t_path	*path = (t_path *)valid;
 
 	ft_printf("\n\nPath:\n");
-		ft_printf("	size : %d\n", path->size);
-		if(path->parent_path)
-		ft_printf("	parent queue : ");
-		
-		if (path->parent_path) {
-			t_list *queue = path->parent_path->queue;
-			while (queue != NULL){
-				char *room_name = ((t_room *)queue->content)->name;
-				ft_printf("%s ", room_name);
-				queue = queue->next;
-			}
-		}
-		ft_printf("\n	queue : ");
-				
-		t_list	*queue = path->queue;
+	ft_printf("	size : %d\n", path->size);
+	if(path->parent_path)
+	ft_printf("	parent queue : ");
+	
+	if (path->parent_path) {
+		t_list *queue = path->parent_path->queue;
 		while (queue != NULL){
 			char *room_name = ((t_room *)queue->content)->name;
 			ft_printf("%s ", room_name);
 			queue = queue->next;
 		}
+	}
+	ft_printf("\n	ants : %d", path->ants);
+	ft_printf("\n	queue : ");
+			
+	t_list	*queue = path->queue;
+	while (queue != NULL){
+		char *room_name = ((t_room *)queue->content)->name;
+		ft_printf("%s ", room_name);
+		queue = queue->next;
+	}
+	ft_printf("\n");
 };
 
 int breadthfirst_search(t_data *data){
@@ -224,8 +228,6 @@ int breadthfirst_search(t_data *data){
 		current_path = current_path->next;
 	}
 
-	// print_paths(data->paths);
 
-	ft_lstiter(data->valid_paths, &print_valid);
 	return (0);
 }
