@@ -46,14 +46,8 @@ static GLuint	compile_shader(GLenum type, const char *source) {
 
 static void cleanup_opengl(GLuint vertex_array,
                            GLuint vertex_buffer,
-                           GLuint vertex_shader,
-                           GLuint fragment_shader,
                            GLuint program)
 {
-    if (vertex_shader != 0)
-        glDeleteShader(vertex_shader);
-    if (fragment_shader != 0)
-        glDeleteShader(fragment_shader);
     if (program != 0)
         glDeleteProgram(program);
     if (vertex_buffer != 0)
@@ -62,82 +56,132 @@ static void cleanup_opengl(GLuint vertex_array,
         glDeleteVertexArrays(1, &vertex_array);
 }
 
-int	main_loop(t_data_visu *data_visu) {
-	
-    GLuint vertex_buffer, vertex_array, vertex_shader, fragment_shader, program;
-    GLint mvp_location, vpos_location, vcol_location;
 
-	static const struct
-	{
-		float x, y;
-		float r, g, b;
-	} vertices[3] =
-	{
-		{ -0.6f, -0.4f, 1.f, 0.f, 0.f },
-		{  0.6f, -0.4f, 0.f, 1.f, 0.f },
-		{   0.f,  0.6f, 0.f, 0.f, 1.f }
+	// static const char* vertex_shader_text =
+		// "#version 330 core\n"
+		// "uniform mat4 MVP;\n"
+		// "layout (location = 0) in vec2 vPos;\n"
+		// "layout (location = 1) in vec3 vCol;\n"
+		// "out vec3 color;\n"
+		// "void main()\n"
+		// "{\n"
+		// "    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
+		// "    color = vCol;\n"
+		// "}\n";
+		
+	// static const char* fragment_shader_text =
+		// "#version 330 core\n"
+		// "in vec3 color;\n"
+		// "out vec4 FragColor;\n"
+		// "void main()\n"
+		// "{\n"
+		// "    FragColor = vec4(color, 1.0);\n"
+		// "}\n";
+
+// Vertex Shader source
+static const char* vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec4 aPos;\n"
+	"uniform mat4 MVP;\n"
+    "void main() {\n"
+    "   gl_Position = MVP * vec4(aPos.x, aPos.y, 1.0, 1.0);\n"
+    "}\0";
+
+// Fragment Shader source
+static const char* fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main() {\n"
+    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\0";
+
+unsigned int createShaderProgram() {
+    unsigned int vertexShader = compile_shader(GL_VERTEX_SHADER, vertexShaderSource);
+    unsigned int fragmentShader = compile_shader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+	if (vertexShader == 0 || fragmentShader == 0)
+		return (0);
+    
+    unsigned int shaderProgram = glCreateProgram();
+	if (shaderProgram == 0){
+	    glDeleteShader(vertexShader);
+	    glDeleteShader(fragmentShader);
+		return (0);
+	}
+
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+    
+    int success;
+    char infoLog[512];
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		glDeleteShader(vertexShader);
+	    glDeleteShader(fragmentShader);
+		return (0);
+    }
+    
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    return shaderProgram;
+};
+
+
+
+
+int	main_loop(t_data_visu *data_visu, t_data *data) {
+	
+    GLuint vertex_buffer, vertex_array, program;
+	GLint mvp_location;
+
+	int rooms_size = count_room(data->rooms);
+	int numSegments = 5;
+    float radius = 0.1f;
+	int nVerts = numSegments + 1;
+    float* circleVerts = malloc(rooms_size * (nVerts * 2 * sizeof(float)));
+	//! a free
+	t_room *rooms =  data->rooms;
+    
+	const int total_segments = numSegments * 2; 
+	for (int j = 0; rooms; j++) {
+		for (int i = 0; i <= numSegments; i++) {
+			float angle = 2.0f * M_PI * (float)i / (float)numSegments;
+			printf("rooms.x %f\n", (float)rooms->x);
+			printf("rooms.y %f\n", (float)rooms->y);
+			circleVerts[(j * total_segments) + i * 2] = (float)rooms->x + radius * cosf(angle);
+			circleVerts[(j * total_segments) + i * 2 + 1] = (float)rooms->y + radius * sinf(angle);
+		}
+		rooms = rooms->next;
 	};
 
-	static const char* vertex_shader_text =
-		"#version 330 core\n"
-		"uniform mat4 MVP;\n"
-		"layout (location = 0) in vec2 vPos;\n"
-		"layout (location = 1) in vec3 vCol;\n"
-		"out vec3 color;\n"
-		"void main()\n"
-		"{\n"
-		"    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
-		"    color = vCol;\n"
-		"}\n";
-		
-	static const char* fragment_shader_text =
-		"#version 330 core\n"
-		"in vec3 color;\n"
-		"out vec4 FragColor;\n"
-		"void main()\n"
-		"{\n"
-		"    FragColor = vec4(color, 1.0);\n"
-		"}\n";
+	printf("Total rooms %d\n", rooms_size);
+
+	for (int i = 0; i <= rooms_size * numSegments * 2; i += 2){
+		if (i % numSegments == 0)
+			printf("\n");		
+		printf("circleVerts[%d] %f , circleVerts[%d] %f\n",i, circleVerts[i],i + 1, circleVerts[i + 1]);
+	}
+	
+
 
 	glGenVertexArrays(1, &vertex_array);
 	glBindVertexArray(vertex_array);
 	glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_text);
-	fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_text);
-	program = glCreateProgram();
-	if (vertex_shader == 0 || fragment_shader == 0){
-		cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
+    glBufferData(GL_ARRAY_BUFFER, nVerts * 2 * sizeof(float), circleVerts, GL_STATIC_DRAW);
+	program = createShaderProgram();
+	if (program == 0){
+		cleanup_opengl(vertex_array, vertex_buffer, program);
 		return (-1);
 	}
  
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-	{
-		GLint link_status;
-
-		glGetProgramiv(program, GL_LINK_STATUS, &link_status);
-		if (link_status != GL_TRUE){
-			cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
-			return (-1);
-		}
-	}
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
  
     mvp_location = glGetUniformLocation(program, "MVP");
-	vpos_location = 0;
-	vcol_location = 1;
  
-    glEnableVertexAttribArray(vpos_location);
-    glVertexAttribPointer(vpos_location, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(vertices[0]), (void*) 0);
-    glEnableVertexAttribArray(vcol_location);
-    glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(vertices[0]), (void*) (sizeof(float) * 2));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
+                          2 * sizeof(float), (void*) 0);
+    glEnableVertexAttribArray(0);
+
 
 
 
@@ -147,7 +191,6 @@ int	main_loop(t_data_visu *data_visu) {
 		float ratio;
         int width, height;
         mat4x4 m, p, mvp;
- 
         glfwGetFramebufferSize(data_visu->window, &width, &height);
         ratio = width / (float) height;
  
@@ -156,23 +199,24 @@ int	main_loop(t_data_visu *data_visu) {
         glClear(GL_COLOR_BUFFER_BIT);
  
         mat4x4_identity(m);
-        mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+        // mat4x4_rotate_Z(m, m, (float) glfwGetTime());
         mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
         mat4x4_mul(mvp, p, m);
  
-        glUseProgram(program);
+		// for (int i = 0; i < rooms_size; i++){
+        	// glDrawArrays(GL_LINE_LOOP, i * nVerts, (i + 1) * numSegments);
+		// }
+		
+        glDrawArrays(GL_LINE_LOOP, 0, nVerts * rooms_size);
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-
+        glUseProgram(program);
 
 		glfwSwapBuffers(data_visu->window);
 		glfwPollEvents();
 	}
 	while( glfwGetKey(data_visu->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	glfwWindowShouldClose(data_visu->window) == 0 );
-	cleanup_opengl(vertex_array, vertex_buffer, vertex_shader, fragment_shader, program);
+	cleanup_opengl(vertex_array, vertex_buffer, program);
 	return (0);
 };
 
@@ -201,7 +245,7 @@ int main(void){
 		return (-1);
 	}
 
-	if (main_loop(&data_visu) == -1) {
+	if (main_loop(&data_visu, &data) == -1) {
 		glfwDestroyWindow(data_visu.window);
 		glfwTerminate();
 		free_rooms(data.rooms);

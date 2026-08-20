@@ -44,7 +44,15 @@ t_room	*room_getby_name(t_room *rooms, char *name){
         rooms = rooms->next;
     }
     return (NULL);
-}
+};
+
+int		count_room(t_room *rooms){
+    int i = 0;
+    for (; rooms; i++)
+        rooms = rooms->next;
+
+    return (i);
+};
 
 int room_islink(t_room *room, int link_id) {
     for (int i = 0; i < room->links_size; i++) {
@@ -52,7 +60,7 @@ int room_islink(t_room *room, int link_id) {
             return (-1);
     }
     return (0);
-}
+};
 
 int    room_addlink(t_room *rooms, int room_id, int link_id) {
     t_room *room = room_getby_id(rooms, room_id);

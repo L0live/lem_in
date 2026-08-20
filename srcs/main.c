@@ -19,14 +19,14 @@ t_room	**queue_to_rooms(t_list *queue, int size){
 
 int	ants_actions(t_data *data, t_path *path, int *id){
 	int count = 0;
-
+	int	path_len = ft_lstsize(path->queue);
 	//! tableau de room ;)
-	t_room **rooms = queue_to_rooms(path->queue, path->size);
+	t_room **rooms = queue_to_rooms(path->queue, path_len);
 	if (!rooms)
 		return (-1);
 
 	//on deplace toute les fourmis deja presentes dans le path
-	for (int i = path->size - 1; i > 0; i--){
+	for (int i = path_len - 1; i > 0; i--){
 		
 		if (rooms[i - 1]->visited && !rooms[i]->visited){
 			if (rooms[i]->id == data->end_id)
@@ -97,8 +97,10 @@ void	clean_unused_paths(t_list *paths){
 void	attribute_ants(t_data *data) {
 	t_path *best_path = (t_path*)data->valid_paths->content;
 	if (!data->valid_paths->next) {
+		t_list *tmp = best_path->queue;
 		best_path->ants = data->total_ants;
 		best_path->queue = best_path->queue->next;
+		free(tmp);
 		return ;
 	}
 
@@ -143,6 +145,10 @@ int main(void){
 
 	if (breadthfirst_search(&data) == -1 || !data.valid_paths){
 		free_paths(data.paths);
+		if (data.valid_paths)
+			ft_lstclear(&data.valid_paths, NULL);
+		else
+			ft_putstr_fd("Aucun path trouvé !\n", 2);
 		free_rooms(data.rooms);
 		return (-1);
 	}
@@ -152,10 +158,12 @@ int main(void){
 	ft_lstiter(data.valid_paths, &print_onepath);
 	if (ants_actions_loop(&data) == -1){
 		free_paths(data.paths);
+		ft_lstclear(&data.valid_paths, NULL);
 		free_rooms(data.rooms);
 		return (-1);
 	}
 
+	ft_lstclear(&data.valid_paths, NULL);
 	free_paths(data.paths);
 	free_rooms(data.rooms);
 	return (0);
