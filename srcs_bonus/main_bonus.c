@@ -1,6 +1,7 @@
 #include	"../includes/lem_in_bonus.h"
 #include	<unistd.h>
 
+
 int	init_glfw(t_data_visu *data){
 	if (!glfwInit())
 	{
@@ -57,27 +58,6 @@ static void cleanup_opengl(GLuint vertex_array,
 }
 
 
-	// static const char* vertex_shader_text =
-		// "#version 330 core\n"
-		// "uniform mat4 MVP;\n"
-		// "layout (location = 0) in vec2 vPos;\n"
-		// "layout (location = 1) in vec3 vCol;\n"
-		// "out vec3 color;\n"
-		// "void main()\n"
-		// "{\n"
-		// "    gl_Position = MVP * vec4(vPos, 0.0, 1.0);\n"
-		// "    color = vCol;\n"
-		// "}\n";
-		
-	// static const char* fragment_shader_text =
-		// "#version 330 core\n"
-		// "in vec3 color;\n"
-		// "out vec4 FragColor;\n"
-		// "void main()\n"
-		// "{\n"
-		// "    FragColor = vec4(color, 1.0);\n"
-		// "}\n";
-
 // Vertex Shader source
 static const char* vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec4 aPos;\n"
@@ -128,55 +108,24 @@ unsigned int createShaderProgram() {
 
 
 
-int	main_loop(t_data_visu *data_visu, t_data *data) {
-	
-    GLuint vertex_buffer, vertex_array, program;
-	GLint mvp_location;
-
-	int rooms_size = count_room(data->rooms);
-	int numSegments = 5;
-    float radius = 0.1f;
-	int nVerts = numSegments + 1;
-    float* circleVerts = malloc(rooms_size * (nVerts * 2 * sizeof(float)));
-	//! a free
-	t_room *rooms =  data->rooms;
-    
-	const int total_segments = numSegments * 2; 
-	for (int j = 0; rooms; j++) {
-		for (int i = 0; i <= numSegments; i++) {
-			float angle = 2.0f * M_PI * (float)i / (float)numSegments;
-			printf("rooms.x %f\n", (float)rooms->x);
-			printf("rooms.y %f\n", (float)rooms->y);
-			circleVerts[(j * total_segments) + i * 2] = (float)rooms->x + radius * cosf(angle);
-			circleVerts[(j * total_segments) + i * 2 + 1] = (float)rooms->y + radius * sinf(angle);
-		}
-		rooms = rooms->next;
-	};
-
-	printf("Total rooms %d\n", rooms_size);
-
-	for (int i = 0; i <= rooms_size * numSegments * 2; i += 2){
-		if (i % numSegments == 0)
-			printf("\n");		
-		printf("circleVerts[%d] %f , circleVerts[%d] %f\n",i, circleVerts[i],i + 1, circleVerts[i + 1]);
-	}
-	
-
-
-	glGenVertexArrays(1, &vertex_array);
-	glBindVertexArray(vertex_array);
-	glGenBuffers(1, &vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, nVerts * 2 * sizeof(float), circleVerts, GL_STATIC_DRAW);
-	program = createShaderProgram();
-	if (program == 0){
-		cleanup_opengl(vertex_array, vertex_buffer, program);
+int	main_loop(t_data_visu *data_visu) {
+	const int	rooms_size = count_room(data_visu->data.rooms);
+	data_visu->offset = 0.5f;
+	data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
+	glGenVertexArrays(1, &data_visu->gl_objects[0].vertex_array);
+	glBindVertexArray(data_visu->gl_objects[0].vertex_array);
+	glGenBuffers(1, &data_visu->gl_objects[0].vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, data_visu->gl_objects[0].vertex_buffer);
+    // glBufferData(GL_ARRAY_BUFFER, nVerts * 2 * sizeof(float) * rooms_size, circleVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 43 * 2 * sizeof(float) * rooms_size, data_visu->gl_objects[0].vertices, GL_STATIC_DRAW);
+	data_visu->gl_objects[0].program = createShaderProgram();
+	if (data_visu->gl_objects[0].program == 0){
+		cleanup_opengl(data_visu->gl_objects[0].vertex_array, data_visu->gl_objects[0].vertex_buffer, data_visu->gl_objects[0].program);
 		return (-1);
 	}
  
  
-    mvp_location = glGetUniformLocation(program, "MVP");
- 
+    data_visu->gl_objects[0].mvp_location = glGetUniformLocation(data_visu->gl_objects[0].program, "MVP");
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
                           2 * sizeof(float), (void*) 0);
@@ -186,6 +135,17 @@ int	main_loop(t_data_visu *data_visu, t_data *data) {
 
 
 	glfwSetInputMode(data_visu->window, GLFW_STICKY_KEYS, GL_TRUE);
+	const int numSegments = 42;
+	GLint first[rooms_size];
+	GLsizei count[rooms_size];
+	for (int i = 0; i < rooms_size; i++){
+		first[i] = i * numSegments;
+		count[i] = numSegments;
+		printf("first[i] %d\n", i * numSegments);
+		printf("count[i] %d\n", numSegments);
+	}
+
+	
 
 	do{
 		float ratio;
@@ -194,35 +154,32 @@ int	main_loop(t_data_visu *data_visu, t_data *data) {
         glfwGetFramebufferSize(data_visu->window, &width, &height);
         ratio = width / (float) height;
  
+		// (void)ratio;
         glViewport(0, 0, width, height);
 		glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
- 
-        mat4x4_identity(m);
-        // mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-        mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-        mat4x4_mul(mvp, p, m);
- 
-		// for (int i = 0; i < rooms_size; i++){
-        	// glDrawArrays(GL_LINE_LOOP, i * nVerts, (i + 1) * numSegments);
-		// }
 		
-        glDrawArrays(GL_LINE_LOOP, 0, nVerts * rooms_size);
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-        glUseProgram(program);
+        mat4x4_identity(m);
+        mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
+        mat4x4_mul(mvp, p, m);
+
+		glMultiDrawArrays(GL_LINE_LOOP, first, count, rooms_size);
+		
+        glUniformMatrix4fv(data_visu->gl_objects[0].mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+
+        glUseProgram(data_visu->gl_objects[0].program);
 
 		glfwSwapBuffers(data_visu->window);
 		glfwPollEvents();
 	}
 	while( glfwGetKey(data_visu->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	glfwWindowShouldClose(data_visu->window) == 0 );
-	cleanup_opengl(vertex_array, vertex_buffer, program);
+	cleanup_opengl(data_visu->gl_objects[0].vertex_array, data_visu->gl_objects[0].vertex_buffer, data_visu->gl_objects[0].program);
 	return (0);
 };
 
 int main(void){
 	t_list	*stdin_content = NULL;
-	t_data	data;
 	t_data_visu	data_visu;
 
 	if (read_stdin(&stdin_content) == -1)
@@ -231,29 +188,29 @@ int main(void){
 		return (-1);
 	ft_lstprint(stdin_content);
 	
-	init_data(&data);
-	if (parsing(stdin_content, &data) == -1) {
+	init_data(&data_visu.data);
+	if (parsing(stdin_content, &data_visu.data) == -1) {
 		ft_lstclear(&stdin_content, &free);
 		return (-1);
 	}
 	ft_lstclear(&stdin_content, &free);
 
-	print_room(&data);
+	print_room(&data_visu.data);
 
 	if (init_glfw(&data_visu) == -1) {
-		free_rooms(data.rooms);
+		free_rooms(data_visu.data.rooms);
 		return (-1);
 	}
 
-	if (main_loop(&data_visu, &data) == -1) {
+	if (main_loop(&data_visu) == -1) {
 		glfwDestroyWindow(data_visu.window);
 		glfwTerminate();
-		free_rooms(data.rooms);
+		free_rooms(data_visu.data.rooms);
 		return (-1);
 	}
 
 	glfwDestroyWindow(data_visu.window);
 	glfwTerminate();
-	free_rooms(data.rooms);
+	free_rooms(data_visu.data.rooms);
 	return (0);
 };

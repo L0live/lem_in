@@ -3,11 +3,11 @@ NAME_BONUS=visualizer
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
 CFLAGS_BONUS=$(CFLAGS)
-LDLIBS_BONUS=-lglfw -lGL -lm -ldl
+LDLIBS_BONUS=-lglfw -lglut -lGL -lm -ldl 
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
 SRCS=main.c utils.c parsing.c structs_utils.c breadthfirst_search.c path_utils.c
-SRCS_BONUS=main_bonus.c utils.c parsing.c structs_utils.c path_utils.c ../glad/src/glad.c 
+SRCS_BONUS=main_bonus.c rooms.c utils.c parsing.c structs_utils.c path_utils.c ../glad/src/glad.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
 OBJS_BONUS=$(addprefix $(OBJS_FOLDER), $(SRCS_BONUS:.c=.o))
