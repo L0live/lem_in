@@ -20,17 +20,22 @@ typedef struct  gl_object_s{
 	GLuint	program;
 	GLint	mvp_location;	//model_view_projection_location
 	float	*vertices;
+	int		vertices_size;
+
+	int		nbSegment;
+	GLint	*first;
+	GLint	*count;
 } t_gl_object;
 
 typedef struct data_visu_s{
 	GLFWwindow  *window;
 	t_gl_object	gl_objects[4];
 	t_data		data;
+	int		objSize[4];
 	float	offset;
 } t_data_visu;
 
 
 //rooms.c
-float    *get_rooms_vertices(t_data_visu *data_visu);
-
+void	set_rooms(t_data_visu *data_visu);
 #endif
