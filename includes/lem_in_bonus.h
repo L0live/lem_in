@@ -4,7 +4,7 @@
 // For the bonus part, we will use OpenGL
 # include	<glad/include/glad/glad.h>
 # include	<GLFW/glfw3.h>
-# include   <GL/freeglut.h>
+// # include   <GL/freeglut.h>
 # include "lem_in.h"
 # include "font8x8.h"
 # include "linmath.h"

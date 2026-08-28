@@ -136,23 +136,24 @@ void	set_obj_vertices(t_data_visu *data_visu){
 	data_visu->objSize[2] = data_visu->data.total_ants;
 
 	//texture textes
-	data_visu->objSize[4] = data_visu->objSize[0];
+	data_visu->objSize[3] = data_visu->objSize[0];
 };
 
 int	gl_init(t_data_visu *data_visu){
 
 	// for (size_t i = 0; i < 4; i++){
 	for (size_t i = 0; i < 1; i++){
-		glGenVertexArrays(1, &data_visu->gl_objects[i].vertex_array);
-		glGenBuffers(1, &data_visu->gl_objects[i].vertex_buffer);
-    	glBindBuffer(GL_ARRAY_BUFFER, data_visu->gl_objects[i].vertex_buffer);
-   		glBufferData(GL_ARRAY_BUFFER, data_visu->gl_objects[i].vertices_size * sizeof(float) , data_visu->gl_objects[i].vertices, GL_STATIC_DRAW);
-		data_visu->gl_objects[i].program = createShaderProgram();
-		if (data_visu->gl_objects[i].program == 0){
-			cleanup_opengl(data_visu->gl_objects[i].vertex_array, data_visu->gl_objects[i].vertex_buffer, data_visu->gl_objects[i].program);
+		t_gl_object *gl_obj = &data_visu->gl_objects[i];
+		glGenVertexArrays(1, &gl_obj->vertex_array);
+		glGenBuffers(1, &gl_obj->vertex_buffer);
+    	glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
+   		glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
+		gl_obj->program = createShaderProgram();
+		if (gl_obj->program == 0){
+			cleanup_opengl(gl_obj->vertex_array, gl_obj->vertex_buffer, gl_obj->program);
 			return (-1);
 		}
-	    data_visu->gl_objects[i].mvp_location = glGetUniformLocation(data_visu->gl_objects[i].program, "MVP");
+	    gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
 	};
 
 	glEnableVertexAttribArray(0);
@@ -166,14 +167,15 @@ void	set_first_and_count(t_data_visu* data_visu){
 
 	for (size_t i = 0; i < 1; i++){
 		int size = data_visu->objSize[i];
-        data_visu->gl_objects[i].first = malloc(sizeof(GLint) * size);
-        data_visu->gl_objects[i].count = malloc(sizeof(GLint) * size);
+		t_gl_object *gl_obj = &data_visu->gl_objects[i];
+        gl_obj->first = malloc(sizeof(GLint) * size);
+        gl_obj->count = malloc(sizeof(GLint) * size);
 
 		for (int j = 0; j < size; j++){
-			data_visu->gl_objects[i].first[j] = j * data_visu->gl_objects[i].nbSegment;
-			data_visu->gl_objects[i].count[j] = data_visu->gl_objects[i].nbSegment;
-			printf("first[i] %d\n", j * data_visu->gl_objects[j].nbSegment);
-			printf("count[i] %d\n", data_visu->gl_objects[j].nbSegment);
+			gl_obj->first[j] = j * gl_obj->nbSegment;
+			gl_obj->count[j] = gl_obj->nbSegment;
+			printf("first[i] %d\n", j * gl_obj->nbSegment);
+			printf("count[i] %d\n", gl_obj->nbSegment);
 		}
 	}
 
@@ -204,10 +206,12 @@ int	main_loop(t_data_visu *data_visu) {
         mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
         mat4x4_mul(mvp, p, m);
 
+		// for (size_t i = 0; i < 4; i++){
 		for (size_t i = 0; i < 1; i++){
-			glMultiDrawArrays(GL_LINE_LOOP, data_visu->gl_objects[i].first, data_visu->gl_objects[i].count, data_visu->objSize[i]);
-			glUniformMatrix4fv(data_visu->gl_objects[i].mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-			glUseProgram(data_visu->gl_objects[i].program);
+			t_gl_object *gl_obj = &data_visu->gl_objects[i];
+			glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
+			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+			glUseProgram(gl_obj->program);
 		}
 
 		glfwSwapBuffers(data_visu->window);
