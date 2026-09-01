@@ -14,6 +14,8 @@
 #  define M_PI 3.1415926535897932384626433
 # endif
 
+extern float tests;
+
 typedef struct  gl_object_s{
 	GLuint	vertex_array;
 	GLuint	vertex_buffer;

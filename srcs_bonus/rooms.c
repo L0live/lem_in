@@ -82,13 +82,14 @@ void	set_vertices(float *vertices, t_data_visu *data_visu, t_rooms_vars *vars, t
 		for (int i = 0; i < vars->nVerts; i++) {
 
 			// pour la couleur des rooms
-			color_index = (j * vars->nVerts) + i;
+			color_index = (j * vars->numSegments) + i;
+			// ft_printf("color index %d\n", color_index);
 			if (rooms->id == data_visu->data.start_id)
-				add_color(obj->colors, color_index, 0.0f, 1.0f, 0.0f, 1.0f);
+				add_color(obj->colors, color_index, 0.0f, 0.7f, 0.0f, 1.0f);
 			else if (rooms->id == data_visu->data.end_id)
-				add_color(obj->colors, color_index, 1.0f, 0.0f, 0.0f, 1.0f);
+				add_color(obj->colors, color_index, 0.7f, 0.0f, 0.0f, 1.0f);
 			else
-				add_color(obj->colors, color_index, 1.0f, 0.5f, 0.2f, 1.0f);
+				add_color(obj->colors, color_index, 0.0f, 0.0f, 0.7f, 1.0f);
 			
 			float angle = 2.0f * M_PI * (float)i / (float)vars->numSegments;
 			int	index = (j * total_segments) + i * 2;
@@ -113,7 +114,7 @@ float    *get_rooms_vertices(t_data_visu *data_visu, t_rooms_vars *vars){
 	
 	set_radius(data_visu->data.rooms, vars);
 	set_vertices(vertices, data_visu, vars, &data_visu->gl_objects[0]);
-
+	tests = vars->radius;
 	// for (int i = 0; i < vars.rooms_size * vars.numSegments * 2; i += 2){
 		// if (i % vars.numSegments == 0)
 			// printf("\n");		

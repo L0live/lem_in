@@ -1,6 +1,7 @@
 #include	"../includes/lem_in_bonus.h"
 #include	<unistd.h>
 
+float tests = 0;
 
 int	init_glfw(t_data_visu *data){
 	if (!glfwInit())
@@ -275,7 +276,6 @@ void	set_first_and_count(t_data_visu* data_visu){
 };
 
 int	main_loop(t_data_visu *data_visu) {
-	
 	set_obj_vertices(data_visu);
 	get_vertices(data_visu);
 	if(gl_init(data_visu))
@@ -299,15 +299,17 @@ int	main_loop(t_data_visu *data_visu) {
         mat4x4_mul(mvp, p, m);
 
 		// for (size_t i = 0; i < 4; i++){
-		for (int i = 0; i < 2; i++){
+		for (int i = 1; i>=0; i--){
 			t_gl_object *gl_obj = &data_visu->gl_objects[i];
 			
 			glUseProgram(gl_obj->program);
 			glBindVertexArray(gl_obj->vertex_array);
 
 			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-			
-			glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
+			if (i == 0)
+				glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
+			else
+				glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 		}
 
 		glfwSwapBuffers(data_visu->window);
