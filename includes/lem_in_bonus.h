@@ -19,12 +19,19 @@ typedef struct  gl_object_s{
 	GLuint	vertex_buffer;
 	GLuint	program;
 	GLint	mvp_location;	//model_view_projection_location
+	GLint	color_location;
+
 	float	*vertices;
 	int		vertices_size;
 
 	int		nbSegment;
 	GLint	*first;
 	GLint	*count;
+
+	// color
+	GLuint	color_buffer;
+	GLfloat	*colors;
+	size_t	colors_size;
 } t_gl_object;
 
 typedef struct data_visu_s{
@@ -38,4 +45,8 @@ typedef struct data_visu_s{
 
 //rooms.c
 void	set_rooms(t_data_visu *data_visu);
+
+//pipe.c
+void	set_pipe(t_data_visu *data_visu);
+int		tunnel_size(t_room *rooms);
 #endif

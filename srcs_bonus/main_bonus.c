@@ -45,10 +45,7 @@ static GLuint	compile_shader(GLenum type, const char *source) {
 	return (shader);
 }
 
-static void cleanup_opengl(GLuint vertex_array,
-                           GLuint vertex_buffer,
-                           GLuint program)
-{
+static void cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program){
     if (program != 0)
         glDeleteProgram(program);
     if (vertex_buffer != 0)
@@ -58,22 +55,23 @@ static void cleanup_opengl(GLuint vertex_array,
 }
 
 
-// Vertex Shader source
-static const char* vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec4 aPos;\n"
-	"uniform mat4 MVP;\n"
-    "void main() {\n"
-    "   gl_Position = MVP * vec4(aPos.x, aPos.y, 1.0, 1.0);\n"
-    "}\0";
+// // Vertex Shader source
+// static const char* vertexShaderSource = "#version 330 core\n"
+    // "layout (location = 0) in vec4 aPos;\n"
+	// "uniform mat4 MVP;\n"
+    // "void main() {\n"
+    // "   gl_Position = MVP * vec4(aPos.x, aPos.y, 1.0, 1.0);\n"
+    // "}\0";
 
-// Fragment Shader source
-static const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main() {\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\0";
+// // Fragment Shader source
+// static const char* fragmentShaderSource = "#version 330 core\n"
+    // "out vec4 FragColor;\n"
+    // "void main() {\n"
+    // "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    // "}\0";
 
-unsigned int createShaderProgram() {
+unsigned int createShaderProgram(const char *vertexShaderSource, const char* fragmentShaderSource){
+
     unsigned int vertexShader = compile_shader(GL_VERTEX_SHADER, vertexShaderSource);
     unsigned int fragmentShader = compile_shader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 	if (vertexShader == 0 || fragmentShader == 0)
@@ -109,55 +107,145 @@ unsigned int createShaderProgram() {
 void	get_vertices(t_data_visu *data_visu){
 
 	set_rooms(data_visu);
+	set_pipe(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
-};
-
-int	tunnel_size(t_room *rooms){
-
-	int count = 0;
-
-	while (rooms){
-		for (int i = 0; i < rooms->links_size; i++){
-            if (rooms->id < rooms->links[i])
-                count++;
-		}
-		rooms = rooms->next;
-	}
-	return (count);
 };
 
 void	set_obj_vertices(t_data_visu *data_visu){
 	data_visu->offset = 0.5f;
-	set_rooms(data_visu);
+
 	data_visu->objSize[0] = count_room(data_visu->data.rooms);
 	data_visu->objSize[1] = tunnel_size(data_visu->data.rooms);
 	data_visu->objSize[2] = data_visu->data.total_ants;
-
-	//texture textes
 	data_visu->objSize[3] = data_visu->objSize[0];
+
+	data_visu->gl_objects[0].nbSegment = 42;
+	data_visu->gl_objects[1].nbSegment = 4;
+
+	// set_rooms(data_visu);
+	// set_pipe(data_visu);
 };
+
+static const char* const *getvertexShader(){
+
+	static const char *vertexShaderSource[4] = {
+		"#version 330 core\n"
+		"layout (location = 0) in vec2 aPos;\n"
+		"layout (location = 1) in vec4 aColor;\n"
+		"uniform mat4 MVP;\n"
+		"out vec4 vertexColor;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"    vertexColor = aColor;\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"layout (location = 0) in vec2 aPos;\n"
+		"uniform mat4 MVP;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"layout (location = 0) in vec2 aPos;\n"
+		"uniform mat4 MVP;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"layout (location = 0) in vec2 aPos;\n"
+		"uniform mat4 MVP;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"}\n"
+	};
+
+	return (vertexShaderSource);
+};
+
+static const char* const *getFragmentShaders(){
+
+	static const char *fragmentShaderSource[4] = {
+		"#version 330 core\n"
+		"in vec4 vertexColor;\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = vertexColor;\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"uniform vec4 objectColor;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = objectColor;\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"uniform vec4 objectColor;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = objectColor;\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"uniform vec4 objectColor;\n"
+		"void main()\n"
+		"{\n"
+		"    FragColor = objectColor;\n"
+		"}\n"
+	};
+
+	return (fragmentShaderSource);
+}
+
 
 int	gl_init(t_data_visu *data_visu){
 
+	const char* const *vertexShaderSource = getvertexShader();
+	const char* const *fragmentShaderSource = getFragmentShaders();
+
 	// for (size_t i = 0; i < 4; i++){
-	for (size_t i = 0; i < 1; i++){
+	for (size_t i = 0; i < 2; i++){
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
+
+		//positiion
 		glGenVertexArrays(1, &gl_obj->vertex_array);
 		glGenBuffers(1, &gl_obj->vertex_buffer);
-    	glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
-   		glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
-		gl_obj->program = createShaderProgram();
+		
+		glBindVertexArray(gl_obj->vertex_array);
+
+		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
+		glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+    	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+
+		glGenBuffers(1, &gl_obj->color_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+
+		gl_obj->program = createShaderProgram(vertexShaderSource[i], fragmentShaderSource[i]);
 		if (gl_obj->program == 0){
 			cleanup_opengl(gl_obj->vertex_array, gl_obj->vertex_buffer, gl_obj->program);
 			return (-1);
 		}
+		
 	    gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
+	    gl_obj->color_buffer = glGetUniformLocation(gl_obj->program, "objectColor");
 	};
 
-	glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
 	glfwSetInputMode(data_visu->window, GLFW_STICKY_KEYS, GL_TRUE);
 
 	return (0);
@@ -165,12 +253,16 @@ int	gl_init(t_data_visu *data_visu){
 
 void	set_first_and_count(t_data_visu* data_visu){
 
-	for (size_t i = 0; i < 1; i++){
+	for (size_t i = 0; i < 2; i++){
 		int size = data_visu->objSize[i];
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
+
         gl_obj->first = malloc(sizeof(GLint) * size);
         gl_obj->count = malloc(sizeof(GLint) * size);
-
+		
+		if (!gl_obj->first || !gl_obj->count)
+			return;
+		
 		for (int j = 0; j < size; j++){
 			gl_obj->first[j] = j * gl_obj->nbSegment;
 			gl_obj->count[j] = gl_obj->nbSegment;
@@ -207,11 +299,15 @@ int	main_loop(t_data_visu *data_visu) {
         mat4x4_mul(mvp, p, m);
 
 		// for (size_t i = 0; i < 4; i++){
-		for (size_t i = 0; i < 1; i++){
+		for (int i = 0; i < 2; i++){
 			t_gl_object *gl_obj = &data_visu->gl_objects[i];
-			glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
-			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+			
 			glUseProgram(gl_obj->program);
+			glBindVertexArray(gl_obj->vertex_array);
+
+			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+			
+			glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 		}
 
 		glfwSwapBuffers(data_visu->window);

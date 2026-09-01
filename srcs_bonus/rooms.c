@@ -49,27 +49,47 @@ void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
 	}
 
 	vars->width = (vars->max_x - vars->min_x);
-	if((vars->max_x - vars->min_x) == 0)
-		vars->height = 5;
 	vars->height = (vars->max_y - vars->min_y);
-	if((vars->max_y - vars->min_y) == 0)
+
+	if(vars->width == 0)
+		vars->height = 5;
+	if(vars->height == 0)
 		vars->height = 5;
 };
 
+static void	add_color(float *colors, int index, float r, float g, float b, float a){
+	colors[index * 4 + 0] = r;
+	colors[index * 4 + 1] = g;
+	colors[index * 4 + 2] = b;
+	colors[index * 4 + 3] = a;
+};
 
-void	set_vertices(float *vertices, t_room *rooms, t_rooms_vars *vars, float offset){
+void	set_vertices(float *vertices, t_data_visu *data_visu, t_rooms_vars *vars, t_gl_object *obj){
 
-	const int total_segments = vars->numSegments * 2;
+	const int	total_segments = vars->numSegments * 2;
+	int			color_index;
 
+	t_room *rooms = data_visu->data.rooms;
 	for (int j = 0; rooms; j++) {
+
 		for (int i = 0; i < vars->nVerts; i++) {
+
+			// pour la couleur des rooms
+			color_index = (j * vars->nVerts) + i;
+			if (rooms->id == data_visu->data.start_id)
+				add_color(obj->colors, color_index, 0.0f, 1.0f, 0.0f, 1.0f);
+			else if (rooms->id == data_visu->data.end_id)
+				add_color(obj->colors, color_index, 1.0f, 0.0f, 0.0f, 1.0f);
+			else
+				add_color(obj->colors, color_index, 1.0f, 0.5f, 0.2f, 1.0f);
+			
 			float angle = 2.0f * M_PI * (float)i / (float)vars->numSegments;
 			int	index = (j * total_segments) + i * 2;
 
-			float point = ((float)rooms->x - vars->min_x) / vars->width - offset + vars->radius * cosf(angle);
+			float point = ((float)rooms->x - vars->min_x) / vars->width - data_visu->offset + vars->radius * cosf(angle);
 			vertices[index] = point;
 
-			point = ((float)rooms->y - vars->min_y)/ vars->height - offset + vars->radius * sinf(angle);
+			point = ((float)rooms->y - vars->min_y)/ vars->height - data_visu->offset + vars->radius * sinf(angle);
 			vertices[index + 1] = point;
 		}
 		rooms = rooms->next;
@@ -79,11 +99,13 @@ void	set_vertices(float *vertices, t_room *rooms, t_rooms_vars *vars, float offs
 float    *get_rooms_vertices(t_data_visu *data_visu, t_rooms_vars *vars){
 	
 	float	*vertices = malloc(data_visu->gl_objects[0].vertices_size * sizeof(float));
-	if (!vertices)
+	if (!vertices){
+		free(data_visu->gl_objects[0].colors);
 		return (NULL);
+	}
 	
 	set_radius(data_visu->data.rooms, vars);
-	set_vertices(vertices, data_visu->data.rooms, vars, data_visu->offset);
+	set_vertices(vertices, data_visu, vars, &data_visu->gl_objects[0]);
 
 	// for (int i = 0; i < vars.rooms_size * vars.numSegments * 2; i += 2){
 		// if (i % vars.numSegments == 0)
@@ -96,15 +118,15 @@ float    *get_rooms_vertices(t_data_visu *data_visu, t_rooms_vars *vars){
 
 void	set_rooms(t_data_visu *data_visu){
 
-	data_visu->offset = 0.5f;
-	data_visu->gl_objects[0].nbSegment = 42;
 	t_rooms_vars vars = { data_visu->gl_objects[0].nbSegment, data_visu->gl_objects[0].nbSegment + 1, count_room(data_visu->data.rooms), 0.1f, 0.0f, 0.0f, 0.0f, 0.f, 0.0f, 0.f};
 
-	if (vars.rooms_size <= 0)
-		return;
-        // return (NULL);
-
 	set_vars(data_visu, &vars);
+
+	//colors
+	data_visu->gl_objects[0].colors_size = vars.rooms_size * vars.nVerts * 4;
+	data_visu->gl_objects[0].colors = malloc(data_visu->gl_objects[0].colors_size * sizeof(float) );
+	if(!data_visu->gl_objects[0].colors)
+		return;
 
 	data_visu->gl_objects[0].vertices_size = vars.rooms_size * vars.nVerts * 2;
 	data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu, &vars);
