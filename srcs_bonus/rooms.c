@@ -48,11 +48,18 @@ void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
 		rooms = rooms->next;
 	}
 
-	vars->width = (vars->max_x - vars->min_x);
-	vars->height = (vars->max_y - vars->min_y);
-
+	// avant
+	// vars->width = (vars->max_x - vars->min_x);
+	// if((vars->max_x - vars->min_x) == 0)
+	// 	vars->height = 5;
+	// vars->height = (vars->max_y - vars->min_y);
+	// if((vars->max_y - vars->min_y) == 0)
+	// 	vars->height = 5;
+	// apres
+	vars->width = vars->max_x - vars->min_x;
 	if(vars->width == 0)
-		vars->height = 5;
+		vars->width = 5;
+	vars->height = vars->max_y - vars->min_y;
 	if(vars->height == 0)
 		vars->height = 5;
 };
