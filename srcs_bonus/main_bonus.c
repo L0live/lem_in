@@ -41,6 +41,7 @@ static GLuint	compile_shader(GLenum type, const char *source) {
 	if (status != GL_TRUE)
 	{
 		glDeleteShader(shader);
+		ft_printf("compile shader fail %s\n", source);
 		return (0);
 	}
 	return (shader);
@@ -109,10 +110,13 @@ void	get_vertices(t_data_visu *data_visu){
 
 	set_rooms(data_visu);
 	set_pipe(data_visu);
+	set_font(data_visu);
+	set_ants(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
 	// data_visu->gl_objects[0].vertices = get_rooms_vertices(data_visu);
 };
+
 
 void	set_obj_vertices(t_data_visu *data_visu){
 	data_visu->offset = 0.5f;
@@ -125,6 +129,7 @@ void	set_obj_vertices(t_data_visu *data_visu){
 	data_visu->gl_objects[0].nbSegment = 42;
 	data_visu->gl_objects[1].nbSegment = 4;
 
+
 	// set_rooms(data_visu);
 	// set_pipe(data_visu);
 };
@@ -134,37 +139,48 @@ static const char* const *getvertexShader(){
 	static const char *vertexShaderSource[4] = {
 		"#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
-		"layout (location = 1) in vec4 aColor;\n"
+		"layout (location = 1) in vec3 aColor;\n"
 		"uniform mat4 MVP;\n"
 		"out vec4 vertexColor;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
-		"    vertexColor = aColor;\n"
+		"    vertexColor = vec4(aColor, 1.0);\n"
 		"}\n",
 
 		"#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
+		"layout (location = 1) in vec3 aColor;\n"
 		"uniform mat4 MVP;\n"
+		"out vec4 vertexColor;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"    vertexColor = vec4(aColor, 1.0);\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"layout (location = 0) in vec4 aPos;\n"
+		"out vec2 TexCoords;\n"
+		"uniform mat4 MVP;\n"
+		"void main()\n"
+		"{\n"
+		"    gl_Position = MVP * vec4(aPos.xy, 1.0, 1.0);\n"
+		"    TexCoords = aPos.zw;\n"
 		"}\n",
 
 		"#version 330 core\n"
 		"layout (location = 0) in vec2 aPos;\n"
+		"layout (location = 1) in vec3 aColor;\n"
+		"layout (location = 2) in vec2 aTexCoord;\n"
+		"out vec3 ourColor;\n"
+		"out vec2 TexCoord;\n"
 		"uniform mat4 MVP;\n"
 		"void main()\n"
 		"{\n"
 		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
-		"}\n",
-
-		"#version 330 core\n"
-		"layout (location = 0) in vec2 aPos;\n"
-		"uniform mat4 MVP;\n"
-		"void main()\n"
-		"{\n"
-		"    gl_Position = MVP * vec4(aPos, 1.0, 1.0);\n"
+		"   ourColor = aColor;\n"
+		"   TexCoord = aTexCoord;\n"
 		"}\n"
 	};
 
@@ -183,33 +199,45 @@ static const char* const *getFragmentShaders(){
 		"}\n",
 
 		"#version 330 core\n"
+		"in vec4 vertexColor;\n"
 		"out vec4 FragColor;\n"
-		"uniform vec4 objectColor;\n"
 		"void main()\n"
 		"{\n"
-		"    FragColor = objectColor;\n"
+		"    FragColor = vertexColor;\n"
+		"}\n",
+
+		"#version 330 core\n"
+		"in vec2 TexCoords;\n"
+		"out vec4 color;\n"
+		"uniform sampler2D text;\n"
+		"uniform vec3 textColor;\n"
+		"void main()\n"
+		"{\n"
+		"    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+		"    color = vec4(textColor, 1.0) * sampled;\n"
 		"}\n",
 
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
-		"uniform vec4 objectColor;\n"
+		"in vec3 ourColor;\n"
+		"in vec2 TexCoord;\n"
+		"uniform sampler2D ourTexture;\n"
 		"void main()\n"
 		"{\n"
-		"    FragColor = objectColor;\n"
-		"}\n",
-
-		"#version 330 core\n"
-		"out vec4 FragColor;\n"
-		"uniform vec4 objectColor;\n"
-		"void main()\n"
-		"{\n"
-		"    FragColor = objectColor;\n"
+		"    FragColor = texture(ourTexture, TexCoord);\n"
 		"}\n"
 	};
 
 	return (fragmentShaderSource);
 }
 
+GLfloat		vertices[] = {
+	// positions          // colors           // texture coords
+	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+};
 
 int	gl_init(t_data_visu *data_visu){
 
@@ -217,34 +245,74 @@ int	gl_init(t_data_visu *data_visu){
 	const char* const *fragmentShaderSource = getFragmentShaders();
 
 	// for (size_t i = 0; i < 4; i++){
-	for (size_t i = 0; i < 2; i++){
+	for (size_t i = 0; i <= 3; i++){
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
+		//! on verifie si obj.vertices et obj.colors existe ??
 
-		//positiion
 		glGenVertexArrays(1, &gl_obj->vertex_array);
 		glGenBuffers(1, &gl_obj->vertex_buffer);
 		
 		glBindVertexArray(gl_obj->vertex_array);
 
 		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
-		glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-    	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+		if(i == 3){
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(2);
+		}
+		else if (i == 2){
+            glBufferData(
+                GL_ARRAY_BUFFER,
+                sizeof(GLfloat) * 6 * 4,
+                NULL,
+                GL_DYNAMIC_DRAW
+            );
 
-		glGenBuffers(1, &gl_obj->color_buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(
+                0,
+                4,
+                GL_FLOAT,
+                GL_FALSE,
+                4 * sizeof(GLfloat),
+                (void *)0
+            );			
+		}
+		else{
+			glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
+			
+			glEnableVertexAttribArray(0);
+	    	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
+
+			glGenBuffers(1, &gl_obj->color_buffer);
+			glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
+			
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_STATIC_DRAW);
+			
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 
 		gl_obj->program = createShaderProgram(vertexShaderSource[i], fragmentShaderSource[i]);
 		if (gl_obj->program == 0){
 			cleanup_opengl(gl_obj->vertex_array, gl_obj->vertex_buffer, gl_obj->program);
 			return (-1);
 		}
-		
-	    gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
-	    gl_obj->color_buffer = glGetUniformLocation(gl_obj->program, "objectColor");
+
+		if (i == 2){
+			// gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
+            gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "text");
+            gl_obj->text_color_location = glGetUniformLocation(gl_obj->program, "textColor");
+        }
+		else if (i == 3){
+            gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
+		}
+		else{
+			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
+			gl_obj->color_location = glGetUniformLocation(gl_obj->program, "objectColor");
+		}
 	};
 
 	glfwSetInputMode(data_visu->window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -278,8 +346,10 @@ void	set_first_and_count(t_data_visu* data_visu){
 int	main_loop(t_data_visu *data_visu) {
 	set_obj_vertices(data_visu);
 	get_vertices(data_visu);
-	if(gl_init(data_visu))
+	if(gl_init(data_visu)){
+		ft_printf("erreur gl_init");
 		return (-1);
+	}
 	set_first_and_count(data_visu);
 
 	do{
@@ -299,7 +369,9 @@ int	main_loop(t_data_visu *data_visu) {
         mat4x4_mul(mvp, p, m);
 
 		// for (size_t i = 0; i < 4; i++){
-		for (int i = 1; i>=0; i--){
+		for (int i = 3; i>=0; i--){
+			if (i == 2)
+				continue;			
 			t_gl_object *gl_obj = &data_visu->gl_objects[i];
 			
 			glUseProgram(gl_obj->program);
@@ -308,8 +380,39 @@ int	main_loop(t_data_visu *data_visu) {
 			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
 			if (i == 0)
 				glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
-			else
+			else if (i == 1)
 				glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
+			if (i == 3){
+				glActiveTexture(GL_TEXTURE0); 
+				glBindTexture(GL_TEXTURE_2D, data_visu->textureId);
+				glGetUniformLocation(GL_TEXTURE_2D, "antTexture");
+				glDrawArrays(GL_LINE_LOOP, 0, 4);
+				// glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+				// glBindTexture(GL_TEXTURE_2D, data_visu->textureId	);
+				// glBindVertexArray(gl_obj->vertex_array);
+				// glUniform1i(textureUniformLocation, 0);
+				// /* code */
+			}				
+		}
+
+		//ici mvp n'est pas le meme que celui de la boucle principale, il est recalculé pour le texte
+		mat4x4_identity(m);
+		mat4x4_ortho(p, -1.0f * ratio, 1.0f * ratio, -1.0f, 1.0f, 1.f, -1.f);
+		mat4x4_mul(mvp, p, m);
+		render_text(data_visu, "LEM-IN", -0.9f * ratio, 0.9f, 0.0013f, 1.0f, 1.0f, 1.0f, mvp);
+
+
+
+		t_room *rooms = data_visu->data.rooms;
+		mat4x4_identity(m);
+        mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
+        mat4x4_mul(mvp, p, m);
+		while(rooms){
+			float x = ((float)rooms->x - data_visu->min_x) / data_visu->width - data_visu->offset;
+    		float y = ((float)rooms->y - data_visu->min_y) / data_visu->height - data_visu->offset;			
+			render_text(data_visu, rooms->name, x, y - 0.013f, 0.00092f, 1.0f, 1.0f, 1.0f, mvp);
+			printf("room name: %s, x: %d, y: %d\n", rooms->name, rooms->x, rooms->y);
+			rooms = rooms->next;
 		}
 
 		glfwSwapBuffers(data_visu->window);
@@ -324,6 +427,9 @@ int	main_loop(t_data_visu *data_visu) {
 int main(void){
 	t_list	*stdin_content = NULL;
 	t_data_visu	data_visu;
+	
+	//! Mieux ?
+	ft_bzero(&data_visu, sizeof(data_visu));
 
 	if (read_stdin(&stdin_content) == -1)
 		return (-1);

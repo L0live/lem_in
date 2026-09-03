@@ -14,6 +14,11 @@ typedef struct rooms_vars_s{
 void set_radius(t_room *rooms, t_rooms_vars *vars){
 	float	initial_radius = 0.01f;
 	float	scale = vars->width / sqrtf(count_room(rooms)) ;
+	// float	tmp = vars->height / sqrtf(count_room(rooms)) ;
+
+	// if(scale > tmp)
+		// scale = tmp;
+	// scale = (scale + tmp) / 2;
 	//! idem pour la height ? et on compare ?
 	printf("initial_radius : %f\nscale%f\n", initial_radius, scale);
 	vars->radius = initial_radius * scale;
@@ -22,8 +27,8 @@ void set_radius(t_room *rooms, t_rooms_vars *vars){
 	// éviter un radius trop petit ou trop grand
 	if (vars->radius > 0.05f)
 		vars->radius = 0.05f;
-	if (vars->radius < 0.01f)
-		vars->radius = 0.01f;
+	if (vars->radius < 0.001f)
+		vars->radius = 0.001f;
 	printf("after radius : %f\n", vars->radius);
 };
 
@@ -48,6 +53,10 @@ void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
 		rooms = rooms->next;
 	}
 
+	data_visu->min_x = vars->min_x;
+	data_visu->max_x = vars->max_x;
+	data_visu->min_y = vars->min_y;
+	data_visu->max_y = vars->max_y;
 	// avant
 	// vars->width = (vars->max_x - vars->min_x);
 	// if((vars->max_x - vars->min_x) == 0)
@@ -57,18 +66,19 @@ void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
 	// 	vars->height = 5;
 	// apres
 	vars->width = vars->max_x - vars->min_x;
-	if(vars->width == 0)
-		vars->width = 5;
+	if(vars->width == 0.0f)
+		vars->width = 1.0f;
 	vars->height = vars->max_y - vars->min_y;
-	if(vars->height == 0)
-		vars->height = 5;
+	if(vars->height == 0.0f)
+		vars->height = 1.0f;
+	data_visu->width = vars->width;
+	data_visu->height = vars->height;
 };
 
-static void	add_color(float *colors, int index, float r, float g, float b, float a){
-	colors[index * 4 + 0] = r;
-	colors[index * 4 + 1] = g;
-	colors[index * 4 + 2] = b;
-	colors[index * 4 + 3] = a;
+static void	add_color(float *colors, int index, float r, float g, float b){
+	colors[index * 3 + 0] = r;
+	colors[index * 3 + 1] = g;
+	colors[index * 3 + 2] = b;
 };
 
 void	set_vertices(float *vertices, t_data_visu *data_visu, t_rooms_vars *vars, t_gl_object *obj){
@@ -85,11 +95,11 @@ void	set_vertices(float *vertices, t_data_visu *data_visu, t_rooms_vars *vars, t
 			color_index = (j * vars->numSegments) + i;
 			// ft_printf("color index %d\n", color_index);
 			if (rooms->id == data_visu->data.start_id)
-				add_color(obj->colors, color_index, 0.0f, 0.7f, 0.0f, 1.0f);
+				add_color(obj->colors, color_index, 0.0f, 0.7f, 0.0f);
 			else if (rooms->id == data_visu->data.end_id)
-				add_color(obj->colors, color_index, 0.7f, 0.0f, 0.0f, 1.0f);
+				add_color(obj->colors, color_index, 0.7f, 0.0f, 0.0f);
 			else
-				add_color(obj->colors, color_index, 0.0f, 0.0f, 0.7f, 1.0f);
+				add_color(obj->colors, color_index, 0.0f, 0.0f, 0.7f);
 			
 			float angle = 2.0f * M_PI * (float)i / (float)vars->numSegments;
 			int	index = (j * total_segments) + i * 2;
@@ -131,7 +141,7 @@ void	set_rooms(t_data_visu *data_visu){
 	set_vars(data_visu, &vars);
 
 	//colors
-	data_visu->gl_objects[0].colors_size = vars.rooms_size * vars.nVerts * 4;
+	data_visu->gl_objects[0].colors_size = vars.rooms_size * vars.nVerts * 3;
 	data_visu->gl_objects[0].colors = malloc(data_visu->gl_objects[0].colors_size * sizeof(float) );
 	if(!data_visu->gl_objects[0].colors)
 		return;

@@ -9,6 +9,13 @@
 # include "font8x8.h"
 # include "linmath.h"
 
+//freetype
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+
+
+
 
 # ifndef M_PI
 #  define M_PI 3.1415926535897932384626433
@@ -16,12 +23,26 @@
 
 extern float tests;
 
+typedef struct s_glyph{
+	GLuint	texture_id;
+	int		width;
+	int		height;
+	int		bearing_x;
+	int		bearing_y;
+	GLuint	advance;
+} t_glyph;
+
 typedef struct  gl_object_s{
 	GLuint	vertex_array;
 	GLuint	vertex_buffer;
 	GLuint	program;
+
 	GLint	mvp_location;	//model_view_projection_location
 	GLint	color_location;
+
+	// pour les texte
+	GLint	texture_location;
+	GLint	text_color_location;
 
 	float	*vertices;
 	int		vertices_size;
@@ -42,6 +63,13 @@ typedef struct data_visu_s{
 	t_data		data;
 	int		objSize[4];
 	float	offset;
+
+	//temporaire pour test
+	float		min_x, max_x, min_y, max_y;
+	float		width;
+	float		height;
+	t_glyph	glyphs[128];
+	GLuint  textureId;
 } t_data_visu;
 
 
@@ -51,4 +79,12 @@ void	set_rooms(t_data_visu *data_visu);
 //pipe.c
 void	set_pipe(t_data_visu *data_visu);
 int		tunnel_size(t_room *rooms);
+
+//polices.c
+void	set_font(t_data_visu *data_visu);
+void	render_text(t_data_visu	*data_visu, const char	*text, GLfloat x, GLfloat y, GLfloat scale, GLfloat r, GLfloat g, GLfloat b, mat4x4 mvp);
+
+//ants.c
+void	set_ants(t_data_visu *data_visu);
+
 #endif
