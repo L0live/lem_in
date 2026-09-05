@@ -13,15 +13,15 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-
-
-
+# define OBJS_SIZE 4
 
 # ifndef M_PI
 #  define M_PI 3.1415926535897932384626433
 # endif
 
 extern float tests;
+
+typedef enum e_object_type {ROOM, PIPE, TEXT, ANT} t_object_type;
 
 typedef struct s_glyph{
 	GLuint	texture_id;
@@ -57,11 +57,12 @@ typedef struct  gl_object_s{
 	size_t	colors_size;
 } t_gl_object;
 
+
 typedef struct data_visu_s{
 	GLFWwindow  *window;
-	t_gl_object	gl_objects[4];
+	t_gl_object	gl_objects[OBJS_SIZE];
 	t_data		data;
-	int		objSize[4];
+	int		objSize[OBJS_SIZE];
 	float	offset;
 
 	//temporaire pour test
@@ -86,5 +87,15 @@ void	render_text(t_data_visu	*data_visu, const char	*text, GLfloat x, GLfloat y,
 
 //ants.c
 void	set_ants(t_data_visu *data_visu);
+
+//shaders.c
+unsigned int createProgram(t_object_type shader_type);
+
+//gl.c
+int		init_glfw(t_data_visu *data);
+int		gl_init(t_data_visu *data_visu);
+void	set_gl_objects(t_data_visu *data_visu);
+void 	cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program);
+void	free_gl_objects(t_gl_object *gl_objects);
 
 #endif

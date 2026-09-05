@@ -57,20 +57,15 @@ void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
 	data_visu->max_x = vars->max_x;
 	data_visu->min_y = vars->min_y;
 	data_visu->max_y = vars->max_y;
-	// avant
-	// vars->width = (vars->max_x - vars->min_x);
-	// if((vars->max_x - vars->min_x) == 0)
-	// 	vars->height = 5;
-	// vars->height = (vars->max_y - vars->min_y);
-	// if((vars->max_y - vars->min_y) == 0)
-	// 	vars->height = 5;
-	// apres
+
+
 	vars->width = vars->max_x - vars->min_x;
 	if(vars->width == 0.0f)
 		vars->width = 1.0f;
 	vars->height = vars->max_y - vars->min_y;
 	if(vars->height == 0.0f)
 		vars->height = 1.0f;
+	
 	data_visu->width = vars->width;
 	data_visu->height = vars->height;
 };
