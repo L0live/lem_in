@@ -116,13 +116,13 @@ unsigned int createProgram(t_object_type shader_type){
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
-	
-	//! shaderProgram = 0:
+
 	GLint success;
 	char infoLog[512];
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		ft_printf("Info Logs: %s\n", infoLog);
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 		glDeleteProgram(shaderProgram);

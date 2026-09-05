@@ -19,8 +19,6 @@
 #  define M_PI 3.1415926535897932384626433
 # endif
 
-extern float tests;
-
 typedef enum e_object_type {ROOM, PIPE, TEXT, ANT} t_object_type;
 
 typedef struct s_glyph{
@@ -63,9 +61,8 @@ typedef struct data_visu_s{
 	t_gl_object	gl_objects[OBJS_SIZE];
 	t_data		data;
 	int		objSize[OBJS_SIZE];
+	
 	float	offset;
-
-	//temporaire pour test
 	float		min_x, max_x, min_y, max_y;
 	float		width;
 	float		height;

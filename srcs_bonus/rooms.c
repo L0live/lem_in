@@ -5,16 +5,14 @@ typedef struct rooms_vars_s{
 	int			nVerts;
 	int			rooms_size;
 	float		radius;
-	float		min_x, max_x, min_y, max_y;
-	float		width;
-	float		height;
 } t_rooms_vars;
 
 #include "stdio.h"
-void set_radius(t_room *rooms, t_rooms_vars *vars){
+
+void set_radius(t_data_visu *data_visu, t_room *rooms, t_rooms_vars *vars){
 	float	initial_radius = 0.01f;
-	float	scale = vars->width / sqrtf(count_room(rooms)) ;
-	// float	tmp = vars->height / sqrtf(count_room(rooms)) ;
+	float	scale = data_visu->width / sqrtf(count_room(rooms)) ;
+	// float	tmp = data_visu->height / sqrtf(count_room(rooms)) ;
 
 	// if(scale > tmp)
 		// scale = tmp;
@@ -30,44 +28,6 @@ void set_radius(t_room *rooms, t_rooms_vars *vars){
 	if (vars->radius < 0.001f)
 		vars->radius = 0.001f;
 	printf("after radius : %f\n", vars->radius);
-};
-
-void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
-	t_room *rooms = data_visu->data.rooms; 
-
-	vars->min_x = rooms->x;
-	vars->min_y = rooms->y;
-	vars->max_x = rooms->x;
-	vars->max_y = rooms->y;
-
-	rooms = rooms->next;
-	while (rooms) {
-		if (rooms->x > vars->max_x)
-			vars->max_x = rooms->x;
-		if (rooms->x < vars->min_x)
-			vars->min_x = rooms->x;
-		if (rooms->y > vars->max_y)
-			vars->max_y = rooms->y;
-		if (rooms->y < vars->min_y)
-			vars->min_y = rooms->y;
-		rooms = rooms->next;
-	}
-
-	data_visu->min_x = vars->min_x;
-	data_visu->max_x = vars->max_x;
-	data_visu->min_y = vars->min_y;
-	data_visu->max_y = vars->max_y;
-
-
-	vars->width = vars->max_x - vars->min_x;
-	if(vars->width == 0.0f)
-		vars->width = 1.0f;
-	vars->height = vars->max_y - vars->min_y;
-	if(vars->height == 0.0f)
-		vars->height = 1.0f;
-	
-	data_visu->width = vars->width;
-	data_visu->height = vars->height;
 };
 
 static void	add_color(float *colors, int index, float r, float g, float b){
@@ -99,10 +59,10 @@ void	set_vertices(float *vertices, t_data_visu *data_visu, t_rooms_vars *vars, t
 			float angle = 2.0f * M_PI * (float)i / (float)vars->numSegments;
 			int	index = (j * total_segments) + i * 2;
 
-			float point = ((float)rooms->x - vars->min_x) / vars->width - data_visu->offset + vars->radius * cosf(angle);
+			float point = ((float)rooms->x - data_visu->min_x) / data_visu->width - data_visu->offset + vars->radius * cosf(angle);
 			vertices[index] = point;
 
-			point = ((float)rooms->y - vars->min_y)/ vars->height - data_visu->offset + vars->radius * sinf(angle);
+			point = ((float)rooms->y - data_visu->min_y)/ data_visu->height - data_visu->offset + vars->radius * sinf(angle);
 			vertices[index + 1] = point;
 		}
 		rooms = rooms->next;
@@ -117,9 +77,8 @@ float    *get_rooms_vertices(t_data_visu *data_visu, t_rooms_vars *vars){
 		return (NULL);
 	}
 	
-	set_radius(data_visu->data.rooms, vars);
+	set_radius(data_visu, data_visu->data.rooms, vars);
 	set_vertices(vertices, data_visu, vars, &data_visu->gl_objects[0]);
-	tests = vars->radius;
 	// for (int i = 0; i < vars.rooms_size * vars.numSegments * 2; i += 2){
 		// if (i % vars.numSegments == 0)
 			// printf("\n");		
@@ -131,9 +90,7 @@ float    *get_rooms_vertices(t_data_visu *data_visu, t_rooms_vars *vars){
 
 void	set_rooms(t_data_visu *data_visu){
 
-	t_rooms_vars vars = { data_visu->gl_objects[0].nbSegment, data_visu->gl_objects[0].nbSegment + 1, count_room(data_visu->data.rooms), 0.1f, 0.0f, 0.0f, 0.0f, 0.f, 0.0f, 0.f};
-
-	set_vars(data_visu, &vars);
+	t_rooms_vars vars = { data_visu->gl_objects[0].nbSegment, data_visu->gl_objects[0].nbSegment + 1, count_room(data_visu->data.rooms), 0.1f};
 
 	//colors
 	data_visu->gl_objects[0].colors_size = vars.rooms_size * vars.nVerts * 3;

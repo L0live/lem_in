@@ -1,7 +1,6 @@
 #include	"../includes/lem_in_bonus.h"
 #include	<unistd.h>
 
-float tests = 0;
 void	set_first_and_count(t_data_visu* data_visu){
 
 	for (size_t i = 0; i < 2; i++){
@@ -28,7 +27,7 @@ int	main_loop(t_data_visu *data_visu) {
 
 	set_gl_objects(data_visu);
 	if(gl_init(data_visu)){
-		ft_printf("erreur gl_init");
+		// ft_printf("erreur gl_init");
 		return (-1);
 	}
 	set_first_and_count(data_visu);

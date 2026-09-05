@@ -1,44 +1,5 @@
 #include	"../includes/lem_in_bonus.h"
 
-
-// void    set_vars(t_data_visu *data_visu, t_rooms_vars *vars){
-// 	t_room *rooms = data_visu->data.rooms; 
-
-// 	vars->min_x = rooms->x;
-// 	vars->min_y = rooms->y;
-// 	vars->max_x = rooms->x;
-// 	vars->max_y = rooms->y;
-
-// 	rooms = rooms->next;
-// 	while (rooms) {
-// 		if (rooms->x > vars->max_x)
-// 			vars->max_x = rooms->x;
-// 		if (rooms->x < vars->min_x)
-// 			vars->min_x = rooms->x;
-// 		if (rooms->y > vars->max_y)
-// 			vars->max_y = rooms->y;
-// 		if (rooms->y < vars->min_y)
-// 			vars->min_y = rooms->y;
-// 		rooms = rooms->next;
-// 	}
-
-// 	data_visu->min_x = vars->min_x;
-// 	data_visu->max_x = vars->max_x;
-// 	data_visu->min_y = vars->min_y;
-// 	data_visu->max_y = vars->max_y;
-
-
-// 	vars->width = vars->max_x - vars->min_x;
-// 	if(vars->width == 0.0f)
-// 		vars->width = 1.0f;
-// 	vars->height = vars->max_y - vars->min_y;
-// 	if(vars->height == 0.0f)
-// 		vars->height = 1.0f;
-	
-// 	data_visu->width = vars->width;
-// 	data_visu->height = vars->height;
-// }
-
 GLfloat		vertices[] = {
 	// positions          // colors           // texture coords
 	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
@@ -60,7 +21,7 @@ int	gl_init(t_data_visu *data_visu){
 
 		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
 		if(i == ANT){
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj[0].vertices_size, gl_obj[0].vertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(2);
 			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 		}
@@ -139,6 +100,36 @@ int	init_glfw(t_data_visu *data){
 	return (0);
 };
 
+static void    set_values(t_data_visu *data_visu){
+	t_room *rooms = data_visu->data.rooms; 
+
+	data_visu->min_x = rooms->x;
+	data_visu->min_y = rooms->y;
+	data_visu->max_x = rooms->x;
+	data_visu->max_y = rooms->y;
+
+	rooms = rooms->next;
+	while (rooms) {
+		if (rooms->x > data_visu->max_x)
+			data_visu->max_x = rooms->x;
+		if (rooms->x < data_visu->min_x)
+			data_visu->min_x = rooms->x;
+		if (rooms->y > data_visu->max_y)
+			data_visu->max_y = rooms->y;
+		if (rooms->y < data_visu->min_y)
+			data_visu->min_y = rooms->y;
+		rooms = rooms->next;
+	}
+
+
+	data_visu->width = data_visu->max_x - data_visu->min_x;
+	if(data_visu->width == 0.0f)
+		data_visu->width = 1.0f;
+	data_visu->height = data_visu->max_y - data_visu->min_y;
+	if(data_visu->height == 0.0f)
+		data_visu->height = 1.0f;
+};
+
 void	set_gl_objects(t_data_visu *data_visu){
 	data_visu->offset = 0.5f;
 
@@ -149,6 +140,8 @@ void	set_gl_objects(t_data_visu *data_visu){
 
 	data_visu->gl_objects[0].nbSegment = 42;
 	data_visu->gl_objects[1].nbSegment = 4;
+
+    set_values(data_visu);
 
 	set_rooms(data_visu);
 	set_pipe(data_visu);
