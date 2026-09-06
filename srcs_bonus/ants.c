@@ -47,10 +47,5 @@ GLuint  loadTexture(const char* filename){
 };
 
 void    set_ants(t_data_visu *data_visu){
-
-	GLuint antTexture = loadTexture("ant.png");
-
-
-
-	data_visu->textureId = antTexture;
+	data_visu->antTexture = loadTexture("ant.png");
 };

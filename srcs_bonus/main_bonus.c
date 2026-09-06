@@ -68,7 +68,7 @@ int	main_loop(t_data_visu *data_visu) {
 				glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 			if (i == ANT){
 				glActiveTexture(GL_TEXTURE0); 
-				glBindTexture(GL_TEXTURE_2D, data_visu->textureId);
+				glBindTexture(GL_TEXTURE_2D, data_visu->antTexture);
 				glGetUniformLocation(GL_TEXTURE_2D, "antTexture");
 				glDrawArrays(GL_LINE_LOOP, 0, 4);
 			}				
@@ -76,8 +76,8 @@ int	main_loop(t_data_visu *data_visu) {
 
 		t_room *rooms = data_visu->data.rooms;
 		while(rooms){
-			float x = ((float)rooms->x - data_visu->min_x) / data_visu->width - data_visu->offset;
-    		float y = ((float)rooms->y - data_visu->min_y) / data_visu->height - data_visu->offset;			
+			float x = (float)rooms->x / data_visu->width - BASIC_OFFSET;
+    		float y = (float)rooms->y / data_visu->height - BASIC_OFFSET;			
 			render_text(data_visu, rooms->name, x, y - 0.013f, 0.00092f, 1.0f, 1.0f, 1.0f, mvp);
 			// printf("room name: %s, x: %d, y: %d\n", rooms->name, rooms->x, rooms->y);
 			rooms = rooms->next;

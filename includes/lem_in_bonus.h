@@ -14,6 +14,9 @@
 #include FT_FREETYPE_H
 
 # define OBJS_SIZE 4
+# define BASIC_OFFSET 0.5f
+# define BASIC_RADIUS 0.01f
+# define PIPE_WIDTH 0.005f
 
 # ifndef M_PI
 #  define M_PI 3.1415926535897932384626433
@@ -60,23 +63,20 @@ typedef struct data_visu_s{
 	GLFWwindow  *window;
 	t_gl_object	gl_objects[OBJS_SIZE];
 	t_data		data;
-	int		objSize[OBJS_SIZE];
-	
-	float	offset;
-	float		min_x, max_x, min_y, max_y;
+	int			objSize[OBJS_SIZE];
 	float		width;
 	float		height;
 	t_glyph	glyphs[128];
-	GLuint  textureId;
+	GLuint  antTexture;
 } t_data_visu;
 
 
 //rooms.c
-void	set_rooms(t_data_visu *data_visu);
+int		set_rooms(t_data_visu *data_visu, t_gl_object *obj, int obj_size);
 
 //pipe.c
-void	set_pipe(t_data_visu *data_visu);
-int		tunnel_size(t_room *rooms);
+int		set_pipe(t_data_visu *data_visu, t_gl_object *obj, int obj_size);
+int		get_pipe_size(t_room *rooms);
 
 //polices.c
 void	set_font(t_data_visu *data_visu);

@@ -12,14 +12,13 @@ int	gl_init(t_data_visu *data_visu){
 
 	for (size_t i = 0; i < OBJS_SIZE; i++){
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
-		//! on verifie si obj.vertices et obj.colors existe ??
 
 		glGenVertexArrays(1, &gl_obj->vertex_array);
-		glGenBuffers(1, &gl_obj->vertex_buffer);
-		
 		glBindVertexArray(gl_obj->vertex_array);
-
+		
+		glGenBuffers(1, &gl_obj->vertex_buffer);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
+
 		if(i == ANT){
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj[0].vertices_size, gl_obj[0].vertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(2);
@@ -27,21 +26,18 @@ int	gl_init(t_data_visu *data_visu){
 		}
 		else if (i == TEXT){
             glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)0);
 		}
 		else{
 			glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
-			
 			glEnableVertexAttribArray(0);
 	    	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
 
 			glGenBuffers(1, &gl_obj->color_buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
-			
+
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_STATIC_DRAW);
-			
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 		}
@@ -103,38 +99,38 @@ int	init_glfw(t_data_visu *data){
 static void    set_values(t_data_visu *data_visu){
 	t_room *rooms = data_visu->data.rooms; 
 
-	data_visu->min_x = rooms->x;
-	data_visu->min_y = rooms->y;
-	data_visu->max_x = rooms->x;
-	data_visu->max_y = rooms->y;
+	int max_x = rooms->x;
+	int min_x = rooms->x;
+	int max_y = rooms->y;
+	int min_y = rooms->y;
 
 	rooms = rooms->next;
 	while (rooms) {
-		if (rooms->x > data_visu->max_x)
-			data_visu->max_x = rooms->x;
-		if (rooms->x < data_visu->min_x)
-			data_visu->min_x = rooms->x;
-		if (rooms->y > data_visu->max_y)
-			data_visu->max_y = rooms->y;
-		if (rooms->y < data_visu->min_y)
-			data_visu->min_y = rooms->y;
+		if (rooms->x > max_x)
+			max_x = rooms->x;
+		if (rooms->x < min_x)
+			min_x = rooms->x;
+		if (rooms->y > max_y)
+			max_y = rooms->y;
+		if (rooms->y < min_y)
+			min_y = rooms->y;
 		rooms = rooms->next;
 	}
 
+	data_visu->width = max_x - min_x || 1.0f;
+	data_visu->height = max_y - min_y || 1.0f;
 
-	data_visu->width = data_visu->max_x - data_visu->min_x;
-	if(data_visu->width == 0.0f)
-		data_visu->width = 1.0f;
-	data_visu->height = data_visu->max_y - data_visu->min_y;
-	if(data_visu->height == 0.0f)
-		data_visu->height = 1.0f;
+	rooms = data_visu->data.rooms;
+	while (rooms) {
+		rooms->x -= min_x;
+		rooms->y -= min_y;
+		rooms = rooms->next;
+	}
 };
 
 void	set_gl_objects(t_data_visu *data_visu){
-	data_visu->offset = 0.5f;
-
 	data_visu->objSize[0] = count_room(data_visu->data.rooms);
-	data_visu->objSize[1] = tunnel_size(data_visu->data.rooms);
+	data_visu->objSize[1] = get_pipe_size(data_visu->data.rooms);
 	data_visu->objSize[2] = data_visu->data.total_ants;
 	data_visu->objSize[3] = data_visu->objSize[0];
 
@@ -143,8 +139,14 @@ void	set_gl_objects(t_data_visu *data_visu){
 
     set_values(data_visu);
 
-	set_rooms(data_visu);
-	set_pipe(data_visu);
+	if (set_rooms(data_visu, &data_visu->gl_objects[0], data_visu->objSize[0]) == -1){
+		ft_printf("Error: set_rooms failed\n");
+		return;
+	}
+	if (set_pipe(data_visu, &data_visu->gl_objects[1], data_visu->objSize[1]) == -1){
+		ft_printf("Error: set_pipe failed\n");
+		return;
+	}
 	set_font(data_visu);
 	set_ants(data_visu);
 };

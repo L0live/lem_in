@@ -7,7 +7,7 @@ LDLIBS_BONUS=-lglfw -lGL -lm -ldl -lfreetype
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
 SRCS=main.c utils.c parsing.c structs_utils.c breadthfirst_search.c path_utils.c
-SRCS_BONUS=main_bonus.c rooms.c pipe.c polices.c shaders.c ants.c gl.c utils.c parsing.c structs_utils.c path_utils.c ../glad/src/glad.c 
+SRCS_BONUS=main_bonus.c rooms.c pipe.c font.c shaders.c ants.c gl.c utils.c parsing.c structs_utils.c path_utils.c ../glad/src/glad.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))
 OBJS_BONUS=$(addprefix $(OBJS_FOLDER), $(SRCS_BONUS:.c=.o))
