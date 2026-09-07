@@ -12,16 +12,16 @@ float	get_radius(t_data_visu *data_visu, int rooms_size){
 	// scale = (scale + tmp) / 2;
 	//! idem pour la height ? et on compare ?
 
-	// printf("initial radius : %f\nscale%f\n", radius, scale);
+	printf("initial radius : %f\nscale%f\n", radius, scale);
 	radius *= scale;
-	// printf("radius : %f\n", radius);
+	printf("radius : %f\n", radius);
 	
 	// éviter un radius trop petit ou trop grand
 	if (radius > 0.05f)
 		radius = 0.05f;
 	if (radius < 0.001f)
 		radius = 0.001f;
-	// printf("after radius : %f\n", radius);
+	printf("after radius : %f\n", radius);
 	return (radius);
 };
 
@@ -34,7 +34,9 @@ static void	add_color(float *colors, int index, float r, float g, float b){
 static void	set_vertices_and_colors(t_data_visu *data_visu, t_gl_object *obj, int obj_size){
 	const int	nVerts = obj->nbSegment + 1;
 	const int	total_segments = obj->nbSegment * 2;
-	const int	radius = get_radius(data_visu, obj_size);
+	const float	radius = get_radius(data_visu, obj_size);
+
+	printf("radius: %f\n", radius);
 
 	t_room *rooms = data_visu->data.rooms;
 	for (int j = 0; rooms; j++) {
@@ -56,9 +58,11 @@ static void	set_vertices_and_colors(t_data_visu *data_visu, t_gl_object *obj, in
 
 			float point = (float)rooms->x / data_visu->width - BASIC_OFFSET + radius * cosf(angle);
 			obj->vertices[index] = point;
+			printf("Room %d (x): %f\n", index, point);
 
 			point = (float)rooms->y/ data_visu->height - BASIC_OFFSET + radius * sinf(angle);
 			obj->vertices[index + 1] = point;
+			printf("Room %d (y): %f\n", index, point);
 		}
 		rooms = rooms->next;
 	};

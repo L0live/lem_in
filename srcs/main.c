@@ -99,7 +99,10 @@ void	attribute_ants(t_data *data) {
 	if (!data->valid_paths->next) {
 		t_list *tmp = best_path->queue;
 		best_path->ants = data->total_ants;
-		best_path->queue = best_path->queue->next;
+		printf("best_path->parent_path->size: %d\n", best_path->parent_path->size);
+		// for (int i = 1; i < best_path->parent_path->size; i++)
+		// if (best_path->parent_path->size > 1)
+			best_path->queue = best_path->queue->next;
 		free(tmp);
 		return ;
 	}
@@ -154,8 +157,8 @@ int main(void){
 	}
 
 	attribute_ants(&data);
-	reset_paths(data.valid_paths);
 	ft_lstiter(data.valid_paths, &print_onepath);
+	reset_paths(data.valid_paths);
 	if (ants_actions_loop(&data) == -1){
 		free_paths(data.paths);
 		ft_lstclear(&data.valid_paths, NULL);

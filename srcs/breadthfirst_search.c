@@ -231,5 +231,7 @@ int breadthfirst_search(t_data *data){
 			continue;
 		current_path = current_path->next;
 	}
+
+	print_paths(data->paths);
 	return (0);
 }

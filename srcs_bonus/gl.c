@@ -128,8 +128,10 @@ static void    set_values(t_data_visu *data_visu){
 		rooms = rooms->next;
 	}
 
-	data_visu->width = max_x - min_x || 1.0f;
-	data_visu->height = max_y - min_y || 1.0f;
+	// data_visu->width = max_x - min_x || 1.0f;
+	data_visu->width = (max_x - min_x == 0) ? 1.0f : max_x - min_x;
+	// data_visu->height = max_y - min_y || 1.0f;
+	data_visu->height = (max_y - min_y == 0) ? 1.0f : max_y - min_y;
 
 	rooms = data_visu->data.rooms;
 	while (rooms) {
