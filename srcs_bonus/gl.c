@@ -1,13 +1,5 @@
 #include	"../includes/lem_in_bonus.h"
 
-GLfloat		vertices[] = {
-	// positions          // colors           // texture coords
-	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-};
-
 int	gl_init(t_data_visu *data_visu){
 
 	for (size_t i = 0; i < OBJS_SIZE; i++){
@@ -20,9 +12,21 @@ int	gl_init(t_data_visu *data_visu){
 		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
 
 		if(i == ANT){
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj[0].vertices_size, gl_obj[0].vertices, GL_STATIC_DRAW);
+			// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
+			
+			//aPos en vec2
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+
+			//aColor ne vec3
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+
+
+			//aTexCoord en vec2
 			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
 		}
 		else if (i == TEXT){
             glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
@@ -56,7 +60,14 @@ int	gl_init(t_data_visu *data_visu){
             gl_obj->text_color_location = glGetUniformLocation(gl_obj->program, "textColor");
         }
 		else if (i == ANT){
+			// activer la transparence
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
             gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
+			glUseProgram(gl_obj->program);
+    		glUniform1i(gl_obj->texture_location, 0);
 		}
 		else{
 			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
