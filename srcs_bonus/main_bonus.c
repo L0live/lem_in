@@ -69,6 +69,7 @@ int	main_loop(t_data_visu *data_visu) {
 			if (i == ANT){
 				glActiveTexture(GL_TEXTURE0); 
 				glBindTexture(GL_TEXTURE_2D, data_visu->antTexture);
+				// glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 				// glDrawArrays(GL_LINE_LOOP, 0, 4);
 			}				

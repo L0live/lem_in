@@ -94,29 +94,52 @@ void	clean_unused_paths(t_list *paths){
 	};
 };
 
+void	remove_start_on_path(t_data *data, t_path *best_path){
+
+	if(((t_room *)best_path->queue->content)->id != data->start_id)
+		return;
+	
+	t_list *tmp = best_path->queue;
+	if (tmp == NULL)
+		return;	
+	best_path->queue = best_path->queue->next;
+	free(tmp);
+	
+	best_path->size--;
+}
+
 void	attribute_ants(t_data *data) {
+	if (!data || !data->valid_paths)
+		return ;	
 	t_path *best_path = (t_path*)data->valid_paths->content;
-	if (!data->valid_paths->next) {
-		t_list *tmp = best_path->queue;
-		best_path->ants = data->total_ants;
-		printf("best_path->parent_path->size: %d\n", best_path->parent_path->size);
-		// for (int i = 1; i < best_path->parent_path->size; i++)
-		// if (best_path->parent_path->size > 1)
-			best_path->queue = best_path->queue->next;
-		free(tmp);
-		return ;
-	}
+	// if (!data->valid_paths->next) {
+	// 	t_list *tmp = best_path->queue;
+	// 	best_path->ants = data->total_ants;
+
+	// 	if (best_path->parent_path == NULL)
+	// 		return;		
+	// 	printf("best_path->parent_path->size: %d\n", best_path->parent_path->size);
+	// 	// for (int i = 1; i < best_path->parent_path->size; i++)
+	// 	// if (best_path->parent_path->size > 1)
+	// 	best_path->queue = best_path->queue->next;
+	// 	free(tmp);
+	// 	return ;
+	// }
 
 	for (int i = 0; i < data->total_ants; i++){
 		t_list *paths = data->valid_paths;
 		while (paths) { // find the best path to add an ant
 			t_path *tmp_path = (t_path*)paths->content;
 			if (tmp_path->size + tmp_path->ants < best_path->size + best_path->ants)
-				best_path = (t_path*)paths->content;		
-			paths = paths->next;		
+				best_path = (t_path*)paths->content;
+			paths = paths->next;
 		};
 		best_path->ants++;
 	};
+
+	if(!data->valid_paths->next)
+		remove_start_on_path(data, best_path);
+
 	clean_unused_paths(data->valid_paths);
 };
 
@@ -130,6 +153,7 @@ void	reset_paths(t_list *paths) {
         paths = paths->next;
     }
 }
+
 
 int main(void){
 	t_list	*stdin_content = NULL;
@@ -145,7 +169,7 @@ int main(void){
 		return (-1);
 	}
 	ft_lstclear(&stdin_content, &free);
-
+	
 	if (breadthfirst_search(&data) == -1 || !data.valid_paths){
 		free_paths(data.paths);
 		if (data.valid_paths)
@@ -165,7 +189,6 @@ int main(void){
 		free_rooms(data.rooms);
 		return (-1);
 	}
-
 	ft_lstclear(&data.valid_paths, NULL);
 	free_paths(data.paths);
 	free_rooms(data.rooms);

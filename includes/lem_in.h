@@ -52,7 +52,7 @@ int		parsing(t_list *stdin_content, t_data *data);
 
 //bfs.c
 int		path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_path);
-int 	path_queue_addnew(t_data *data, t_path *path, t_room *room);
+t_path	*path_queue_addnew(t_data *data, t_path *path, t_room *room, int *safe_return);
 void    free_paths(t_path *paths);
 void    print_paths(t_path *paths);
 int     breadthfirst_search(t_data *data);
@@ -61,4 +61,6 @@ void	print_onepath(void *valid);
 //path_utils.c
 void	join_paths(t_data *data, t_path *current_path);
 
+//main.c
+void	reset_paths(t_list *paths);
 #endif

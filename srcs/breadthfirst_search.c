@@ -10,10 +10,51 @@ int	path_addcopy(t_list **paths, t_path *path) {
 	return (0);
 };
 
-int path_queue_addnew(t_data *data, t_path *path, t_room *room){
+int	free_and_join_between_path(t_path *paths, t_path *path) {
+	while (paths->next) {
+		// ft_printf("\nfree_and_join_between_path (is equal to path)\n");
+		// print_onepath(path->next);
+		if (paths->next == path) {
+			// ft_lstclear(&paths->next->queue, NULL);
+			t_path	*tmp = paths->next->next;
+			free(paths->next);
+			paths->next = tmp;
+			return (0);
+		}
+		paths = paths->next;
+	}
+	free(path);
+	return (1);
+}
+
+void	reset_child_paths(t_path *paths, t_path *path) {
+	ft_printf("\n	# target path:");
+	print_onepath(path);
+	while (paths && paths->next) {
+		ft_printf("\n	# current path:");
+		print_onepath(paths->next);
+		ft_printf("\n	# current parent_path:");
+		print_onepath(paths->next->parent_path);
+		if (paths->next->parent_path == path) {
+			ft_printf("\n	## ^is cleanable^\n");
+			t_list	*queue = paths->next->queue;
+			while (queue) {
+				((t_room*)queue->content)->visited = false;
+				queue = queue->next;
+			}
+			ft_lstclear(&paths->next->queue, NULL);
+			t_path	*tmp = paths->next->next;
+			free(paths->next);
+			paths->next = tmp;
+		}
+		paths = paths->next;
+	}
+}
+
+t_path	*path_queue_addnew(t_data *data, t_path *path, t_room *room, int *safe_return){
 	t_list *new = ft_lstnew((void *)room);
 	if (!new)
-		return (-1);
+		return (NULL);
 	
 	ft_lstadd_back(&path->queue, new);
 	path->size++;
@@ -21,18 +62,28 @@ int path_queue_addnew(t_data *data, t_path *path, t_room *room){
 	if (data && room->id == data->end_id){
 		while (path->parent_path && (path->parent_path->parent_path || path->parent_path->size > 1)){
 			ft_lstadd_back(&path->parent_path->queue, path->queue);
-			path->queue = NULL;
+			// path->queue = NULL;
 			path->parent_path->size = path->size;
-			path = path->parent_path;
+			t_path	*tmp = path->parent_path;
+			print_paths(data->paths);
+			if (safe_return)
+				*safe_return = free_and_join_between_path(data->paths, path);
+			else
+				free_and_join_between_path(data->paths, path);
+			path = tmp;
+			print_paths(data->paths);
+			reset_child_paths(data->paths, path);
 		};
 		if (path_addcopy(&data->valid_paths, path) == -1)
-			return (-1);
+			return (NULL);
+		return (path);
 	}
 	
-	return (0);
+	return (path);
 };
 
 int path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_path){
+	int	safe_return = false;
 	t_path *new = malloc(sizeof(t_path));
 	if (!new)
 		return (-1);
@@ -46,9 +97,14 @@ int path_addnew(t_data *data, t_path **path, t_room *first_room, t_path *parent_
 	new->ants = 0;
 	new->next = NULL;
 
-	if (first_room && path_queue_addnew(data, new, first_room) == -1) {
-		free(new);
-		return (-1);
+	if (first_room) {
+		new = path_queue_addnew(data, new, first_room, &safe_return);
+		if (!new) {
+			free(new);
+			return (-1);
+		}
+		if (safe_return)
+			return (0);
 	}
 
 	if (*path == NULL){
@@ -190,7 +246,7 @@ int breadthfirst_search(t_data *data){
 	t_path *current_path = paths;
 
 	while (current_path){
-		if (!current_path->queue && current_path->parent_path){
+		if (current_path->parent_path && !current_path->queue){
 			current_path = current_path->next;
 			continue;		
 		}
@@ -214,18 +270,25 @@ int breadthfirst_search(t_data *data){
 			t_room *child_room = room_getby_id(data->rooms, current_room->links[i]);
 			if (valid_room(current_path, child_room, data->end_id) == -1)
 				continue;
+			ft_printf("child room: %s\n", child_room->name);
 			if (valid_neighbors > 1){
 				if (path_addnew(data, &paths, child_room, current_path) == -1)
 					return (-1);
 			}
 			else{
-				if (path_queue_addnew(data, current_path, child_room) == -1)
+				current_path = path_queue_addnew(data, current_path, child_room, NULL);
+				if (!current_path)
 					return (-1);
 				tmp = current_path;
 				current_path = path_readdback(&paths, current_path);
-			} 
+			}
+			
+			// ft_printf("\n	##########################");
+			// print_onepath(current_path->next); 
 			if (child_room->id != data->end_id)
 				child_room->visited = true;
+			else
+				break;
 		}
 		if (tmp == current_path)
 			continue;
