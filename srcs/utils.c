@@ -34,17 +34,13 @@ int	read_stdin(t_list **stdin_content){
 	while (line != NULL ){
 		if (line[ft_strlen(line) - 1] == '\n')
 			line[ft_strlen(line) - 1] = '\0';
-		if (line[0] != '\0') {
-			tmp = ft_lstnew(line);
-			if (!tmp) {
-				free(line);
-				ft_lstclear(stdin_content, &free);
-				return(-1);
-			}
-			ft_lstadd_back(stdin_content, tmp);
-		}
-		else
+		tmp = ft_lstnew(line);
+		if (!tmp) {
 			free(line);
+			ft_lstclear(stdin_content, &free);
+			return(-1);
+		}
+		ft_lstadd_back(stdin_content, tmp);
 		line = get_next_line(STDIN_FILENO);
 	}
 	return(0);

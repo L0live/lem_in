@@ -112,19 +112,6 @@ void	attribute_ants(t_data *data) {
 	if (!data || !data->valid_paths)
 		return ;	
 	t_path *best_path = (t_path*)data->valid_paths->content;
-	// if (!data->valid_paths->next) {
-	// 	t_list *tmp = best_path->queue;
-	// 	best_path->ants = data->total_ants;
-
-	// 	if (best_path->parent_path == NULL)
-	// 		return;		
-	// 	printf("best_path->parent_path->size: %d\n", best_path->parent_path->size);
-	// 	// for (int i = 1; i < best_path->parent_path->size; i++)
-	// 	// if (best_path->parent_path->size > 1)
-	// 	best_path->queue = best_path->queue->next;
-	// 	free(tmp);
-	// 	return ;
-	// }
 
 	for (int i = 0; i < data->total_ants; i++){
 		t_list *paths = data->valid_paths;
@@ -155,33 +142,82 @@ void	reset_paths(t_list *paths) {
 }
 
 
+int		minimum_data(t_data *data){
+	if (data->total_ants == 0){
+		ft_putstr_fd("Error : Not enough ants\n", 2);
+		return (-1);
+	}
+	if (!data->rooms || !data->rooms->next){
+		ft_putstr_fd("Error : Not enough rooms\n", 2);
+		return (-1);
+	}
+	
+	if (data->start_id == -1){
+		ft_putstr_fd("Error : Start room not set\n", 2);
+		return (-1);
+	}
+	if (data->end_id == -1){
+		ft_putstr_fd("Error : End room not set\n", 2);
+		return (-1);
+	}
+
+	t_room *start = room_getby_id(data->rooms, data->start_id);
+	t_room *end = room_getby_id(data->rooms, data->end_id);
+
+	if (!start || !end)
+        return (-1);
+
+	if (start->links_size == 0){
+		ft_putstr_fd("Error : Start have no link\n", 2);
+		return (-1);
+	}		
+	if (end->links_size == 0){
+		ft_putstr_fd("Error : End have no link\n", 2);
+		return (-1);
+	}
+
+	return (0);
+}
+
+#include <unistd.h>
 int main(void){
 	t_list	*stdin_content = NULL;
 	t_data	data;
 
 	if (read_stdin(&stdin_content) == -1)
 		return (-1);
-	ft_lstprint(stdin_content);
+	// ft_lstprint(stdin_content);
 	
 	init_data(&data);
-	if (parsing(stdin_content, &data) == -1) {
+	parsing(stdin_content, &data);
+	// if (parsing(stdin_content, &data) == -1 ) {
+		// //! minimum valide a ce point
+		// // start set ; end set; au moins un link depuis start ou end, au moins 1 fourmis
+		// if (minimum_data(&data) == -1){
+			// ft_lstclear(&stdin_content, &free);
+			// return (-1);
+		// }
+	// }
+	if (minimum_data(&data) == -1){
 		ft_lstclear(&stdin_content, &free);
+		free_rooms(data.rooms);
 		return (-1);
 	}
+
 	ft_lstclear(&stdin_content, &free);
-	
+
 	if (breadthfirst_search(&data) == -1 || !data.valid_paths){
 		free_paths(data.paths);
 		if (data.valid_paths)
 			ft_lstclear(&data.valid_paths, NULL);
 		else
-			ft_putstr_fd("Aucun path trouvé !\n", 2);
+			ft_putstr_fd("Error : No valid path found\n", 2);
 		free_rooms(data.rooms);
 		return (-1);
 	}
 
 	attribute_ants(&data);
-	ft_lstiter(data.valid_paths, &print_onepath);
+	// ft_lstiter(data.valid_paths, &print_onepath);
 	reset_paths(data.valid_paths);
 	if (ants_actions_loop(&data) == -1){
 		free_paths(data.paths);
@@ -192,5 +228,6 @@ int main(void){
 	ft_lstclear(&data.valid_paths, NULL);
 	free_paths(data.paths);
 	free_rooms(data.rooms);
+	sleep(3);
 	return (0);
 };

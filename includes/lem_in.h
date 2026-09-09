@@ -40,7 +40,7 @@ int		read_stdin(t_list **stdin_content);
 
 // structs_utils.c
 int		room_addnew(t_room **rooms, int id, char *name, int x, int y);
-int		room_addlink(t_room *rooms, int room_id, int link_id);
+int		room_addlink(t_room *rooms, int room_id, int link_id, int start_id);
 t_room	*room_getby_id(t_room *rooms, int id);
 t_room	*room_getby_name(t_room *rooms, char *name);
 int		count_room(t_room *rooms);

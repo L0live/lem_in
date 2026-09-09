@@ -94,6 +94,22 @@ int	main_loop(t_data_visu *data_visu) {
 	return (0);
 };
 
+int	wrong_map(t_list *stdin_content){
+
+	char 	cmp[7] = "Error";
+	char	*last_line = ft_lstlast(stdin_content)->content;
+	char	*error = ft_substr(last_line, 0,5);
+
+	// ft_printf("%s*\n%s*\n", error, cmp); 
+	// ft_printf("%d\n", ft_strcmp(error, cmp)); 
+	if (ft_strcmp(error, cmp) == 0){
+		free(error);
+		return (-1);
+	}
+	free(error);
+	return (0);
+};
+
 int main(void){
 	t_list	*stdin_content = NULL;
 	t_data_visu	data_visu;
@@ -108,8 +124,18 @@ int main(void){
 	ft_lstprint(stdin_content);
 	
 	init_data(&data_visu.data);
-	if (parsing(stdin_content, &data_visu.data) == -1) {
+
+	if (wrong_map(stdin_content) == -1){
 		ft_lstclear(&stdin_content, &free);
+		return (-1);
+	}
+
+	ft_printf("test main bonus\n");
+	if (parsing(stdin_content, &data_visu.data) == -1) {
+		//! l'etape des ants commence
+		
+		// ft_lstprint(stdin_content);
+		// ft_lstclear(&stdin_content, &free);
 		return (-1);
 	}
 	ft_lstclear(&stdin_content, &free);

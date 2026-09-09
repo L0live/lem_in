@@ -54,7 +54,7 @@ int		count_room(t_room *rooms){
     return (i);
 };
 
-int room_islink(t_room *room, int link_id) {
+int room_is_link(t_room *room, int link_id) {
     for (int i = 0; i < room->links_size; i++) {
         if (room->links[i] == link_id)
             return (-1);
@@ -62,10 +62,13 @@ int room_islink(t_room *room, int link_id) {
     return (0);
 };
 
-int    room_addlink(t_room *rooms, int room_id, int link_id) {
+int    room_addlink(t_room *rooms, int room_id, int link_id, int start_id) {
     t_room *room = room_getby_id(rooms, room_id);
     if (room == NULL)
         return (-1);
+    if (room_id == start_id){
+    }
+    
     if (room->links == NULL) {
         room->links = malloc(sizeof(int));
         if (room->links == NULL)
@@ -73,7 +76,7 @@ int    room_addlink(t_room *rooms, int room_id, int link_id) {
         room->links[0] = link_id;
         room->links_size = 1;
     } else {
-        if (room_islink(room, link_id) == -1)
+        if (room_is_link(room, link_id) == -1)
             return (0);
         int *new_links = malloc(sizeof(int) * (room->links_size + 1));
         if (new_links == NULL)
@@ -87,7 +90,7 @@ int    room_addlink(t_room *rooms, int room_id, int link_id) {
         room->links[room->links_size] = link_id;
         room->links_size++;
     }
-    if (room_addlink(rooms, link_id, room_id) == -1)
+    if (room_addlink(rooms, link_id, room_id, start_id) == -1)
         return (-1);
     return (0);
 }
