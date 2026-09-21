@@ -6,7 +6,7 @@ CFLAGS_BONUS=$(CFLAGS) -I/usr/include/freetype2
 LDLIBS_BONUS=-lglfw -lGL -lm -ldl -lfreetype
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
-SRCS=main.c utils.c parsing.c structs_utils.c breadthfirst_search.c path_utils.c
+SRCS=main.c utils.c parsing.c structs_utils.c debug.c free.c ants.c breadthfirst_search.c path_utils.c
 SRCS_BONUS=main_bonus.c rooms.c pipe.c font.c shaders.c ants.c gl.c utils.c parsing.c structs_utils.c path_utils.c ../glad/src/glad.c 
 OBJS_FOLDER=objs/
 OBJS=$(addprefix $(OBJS_FOLDER), $(SRCS:.c=.o))

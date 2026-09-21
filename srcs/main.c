@@ -1,203 +1,15 @@
 #include	"../includes/lem_in.h"
 
-t_room	**queue_to_rooms(t_list *queue, int size){
-
-	t_room **rooms;
-	int	i = 0;
-
-	rooms = malloc(sizeof(t_room*) * (size + 1));
-	if (!rooms)
-		return (NULL);
-
-	for (i = 0; queue; i++){
-		rooms[i] = queue->content;
-		queue = queue->next;
-	}
-	rooms[i] = NULL;
-	return (rooms);
-};
-
-int	ants_actions(t_data *data, t_path *path, int *id){
-	int count = 0;
-	int	path_len = ft_lstsize(path->queue);
-	//! tableau de room ;)
-	t_room **rooms = queue_to_rooms(path->queue, path_len);
-	if (!rooms)
-		return (-1);
-
-	//on deplace toute les fourmis deja presentes dans le path
-	for (int i = path_len - 1; i > 0; i--){
-		
-		if (rooms[i - 1]->visited && !rooms[i]->visited){
-			if (rooms[i]->id == data->end_id)
-				(data->total_ants)--;
-			else
-				rooms[i]->visited = rooms[i - 1]->visited;
-			
-			ft_printf("L%d-%s ", rooms[i - 1]->visited, rooms[i]->name);
-			rooms[i - 1]->visited = 0;
-			count++;
-		}
-	};
-
-	//on ajoute une nouvelle fourmis
-	if (path->ants > 0 && !rooms[0]->visited){
-		if	(rooms[0]->id == data->end_id)
-			(data->total_ants)--;
-		else
-			rooms[0]->visited = *id;
-		ft_printf("L%d-%s ", *id, rooms[0]->name);
-		count++;
-		path->ants--;
-		(*id)++;
-	}
-
-	free(rooms);
-	return (count);
-};
-
-int	ants_actions_loop(t_data *data) {
-	int actions_count = 0;
-	int lines_count = 0;
-	int ant_id = 1;
-
-	ft_printf("\n");
-	while (data->total_ants)
-	{
-		t_list *paths = data->valid_paths;
-		while (paths){
-		// ft_printf("((t_path *)paths->content)->size : %d\n", ((t_path *)paths->content)->size);
-			int path_actions_count = ants_actions(data, paths->content, &ant_id);
-			if (path_actions_count == -1)
-				return (-1);
-			actions_count += path_actions_count;
-			paths = paths->next;
-		}
-		ft_printf("\n");
-		lines_count++;
-		// ft_printf("\tTotal ant restant : %d\n", data->total_ants);
-	}
-	ft_printf("Total d'actions :%d\n", actions_count);
-	ft_printf("Total de lignes :%d\n", lines_count);
-	return (0);
-};
-
-void	clean_unused_paths(t_list *paths){
-	while (paths->next){
-		if (((t_path *)paths->next->content)->ants == 0){
-			t_list *tmp = paths->next;
-			paths->next = tmp->next;
-			free(tmp);
-		}
-		else
-			paths = paths->next;
-	};
-};
-
-void	remove_start_on_path(t_data *data, t_path *best_path){
-
-	if(((t_room *)best_path->queue->content)->id != data->start_id)
-		return;
-	
-	t_list *tmp = best_path->queue;
-	if (tmp == NULL)
-		return;	
-	best_path->queue = best_path->queue->next;
-	free(tmp);
-	
-	best_path->size--;
-}
-
-void	attribute_ants(t_data *data) {
-	if (!data || !data->valid_paths)
-		return ;	
-	t_path *best_path = (t_path*)data->valid_paths->content;
-
-	for (int i = 0; i < data->total_ants; i++){
-		t_list *paths = data->valid_paths;
-		while (paths) { // find the best path to add an ant
-			t_path *tmp_path = (t_path*)paths->content;
-			if (tmp_path->size + tmp_path->ants < best_path->size + best_path->ants)
-				best_path = (t_path*)paths->content;
-			paths = paths->next;
-		};
-		best_path->ants++;
-	};
-
-	if(!data->valid_paths->next)
-		remove_start_on_path(data, best_path);
-
-	clean_unused_paths(data->valid_paths);
-};
-
-void	reset_paths(t_list *paths) {
-    while (paths){
-        t_list *queue = ((t_path *)paths->content)->queue;
-        while (queue){
-            ((t_room*)queue->content)->visited = 0;
-            queue = queue->next;
-        }
-        paths = paths->next;
-    }
-}
-
-
-int		minimum_data(t_data *data){
-	if (data->total_ants == 0){
-		ft_putstr_fd("Error : Not enough ants\n", 2);
-		return (-1);
-	}
-	if (!data->rooms || !data->rooms->next){
-		ft_putstr_fd("Error : Not enough rooms\n", 2);
-		return (-1);
-	}
-	
-	if (data->start_id == -1){
-		ft_putstr_fd("Error : Start room not set\n", 2);
-		return (-1);
-	}
-	if (data->end_id == -1){
-		ft_putstr_fd("Error : End room not set\n", 2);
-		return (-1);
-	}
-
-	t_room *start = room_getby_id(data->rooms, data->start_id);
-	t_room *end = room_getby_id(data->rooms, data->end_id);
-
-	if (!start || !end)
-        return (-1);
-
-	if (start->links_size == 0){
-		ft_putstr_fd("Error : Start have no link\n", 2);
-		return (-1);
-	}		
-	if (end->links_size == 0){
-		ft_putstr_fd("Error : End have no link\n", 2);
-		return (-1);
-	}
-
-	return (0);
-}
-
-#include <unistd.h>
-int main(void){
+int	main(void){
 	t_list	*stdin_content = NULL;
 	t_data	data;
 
 	if (read_stdin(&stdin_content) == -1)
 		return (-1);
-	// ft_lstprint(stdin_content);
 	
 	init_data(&data);
 	parsing(stdin_content, &data);
-	// if (parsing(stdin_content, &data) == -1 ) {
-		// //! minimum valide a ce point
-		// // start set ; end set; au moins un link depuis start ou end, au moins 1 fourmis
-		// if (minimum_data(&data) == -1){
-			// ft_lstclear(&stdin_content, &free);
-			// return (-1);
-		// }
-	// }
+
 	if (minimum_data(&data) == -1){
 		ft_lstclear(&stdin_content, &free);
 		free_rooms(data.rooms);
@@ -206,28 +18,23 @@ int main(void){
 
 	ft_lstclear(&stdin_content, &free);
 
-	if (breadthfirst_search(&data) == -1 || !data.valid_paths){
-		free_paths(data.paths);
-		if (data.valid_paths)
-			ft_lstclear(&data.valid_paths, NULL);
-		else
-			ft_putstr_fd("Error : No valid path found\n", 2);
-		free_rooms(data.rooms);
+	if (bfs(&data) == -1){
+		free_data(&data);
+		return (0);	
+	}
+
+	ft_lstiter(data.valid_paths, &print_onepath);
+
+	reset_paths_visited(data.valid_paths);
+	remove_start_from_paths(&data);
+	ft_lstiter(data.valid_paths, &print_onepath);
+
+	attribute_ants(&data);
+	if (ants_actions_loop(&data) == -1){
+		free_data(&data);
 		return (-1);
 	}
 
-	attribute_ants(&data);
-	// ft_lstiter(data.valid_paths, &print_onepath);
-	reset_paths(data.valid_paths);
-	if (ants_actions_loop(&data) == -1){
-		free_paths(data.paths);
-		ft_lstclear(&data.valid_paths, NULL);
-		free_rooms(data.rooms);
-		return (-1);
-	}
-	ft_lstclear(&data.valid_paths, NULL);
-	free_paths(data.paths);
-	free_rooms(data.rooms);
-	sleep(3);
+	free_data(&data);
 	return (0);
 };

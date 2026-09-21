@@ -1,6 +1,6 @@
 #include "../includes/lem_in.h"
 
-int    ft_isstriter(const char *str, int (*f)(int)){
+static int    ft_isstriter(const char *str, int (*f)(int)){
 	while (*str){
 		if (!f(*str))
 			return (0);
@@ -9,7 +9,7 @@ int    ft_isstriter(const char *str, int (*f)(int)){
 	return (-1);
 }
 
-void	free_split(char **split) {
+static void	free_split(char **split) {
 	if (split == NULL)
 		return ;
 	for (int i = 0; split[i] != NULL; i++)
@@ -17,25 +17,12 @@ void	free_split(char **split) {
 	free(split);
 }
 
-// int		is_coord_already_used(t_room *rooms, int x, int y){
-// 	if (!rooms)
-// 		return (0);
-	
-// 	while (rooms){
-// 		if (rooms->x == x && rooms->y == y)
-// 			return (1);		
-// 		rooms = rooms->next;
-// 	}
-// 	return (0);
-// }
 
-int    handle_new_room(t_room **rooms, char *line, int new_id){
+static int    handle_new_room(t_room **rooms, char *line, int new_id){
 	int x, y;
-	// int id, x, y;
 	char    **split_line = ft_split(line, ' ');
 	char	*name;
 
-	// ft_printf("\n\nline %s and split_line %s\n",line, split_line);
 	if (!split_line || !split_line[0] || !split_line[1] || !split_line[2] || split_line[3]){
 		free_split(split_line);
 		return (-1);
@@ -55,7 +42,6 @@ int    handle_new_room(t_room **rooms, char *line, int new_id){
 	y = ft_atoi(split_line[2]);
 	free_split(split_line);
 	
-	// ft_printf("\n\new_id %d and name %s\n",new_id, name);
 	if(room_getby_name(*rooms, name) || room_addnew(rooms, new_id, name, x, y) == -1) {
 		free(name);
 		return (-1);
@@ -64,7 +50,7 @@ int    handle_new_room(t_room **rooms, char *line, int new_id){
 	return (0);
 }
 
-int	is_boundary(t_data *data, char *line, t_list *current, int id) {
+static int	is_boundary(t_data *data, char *line, t_list *current, int id) {
 
 	if (!current || !current->content){
 		ft_printf("next line ##start or end its her line settings");
@@ -84,7 +70,7 @@ int	is_boundary(t_data *data, char *line, t_list *current, int id) {
 	return (0);
 };
 
-int	handle_new_link(t_room *rooms, char *line, int start_id) {
+static int	handle_new_link(t_room *rooms, char *line, int start_id) {
 	t_room 	*tmp;
 	int 	room_id;
 	int 	link_id;
@@ -117,9 +103,9 @@ int	handle_new_link(t_room *rooms, char *line, int start_id) {
 }
 
 int    parsing(t_list *stdin_content, t_data *data){
-	t_list 	*current = stdin_content;
+	t_list	*current = stdin_content;
 	char	*line = current->content;
-	bool    is_links_part = false;
+	bool	is_links_part = false;
 	int		num_line = 1;
 	int		id = 0;
 	
