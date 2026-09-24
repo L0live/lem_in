@@ -7,11 +7,16 @@ void	set_first_and_count(t_data_visu* data_visu){
 		int size = data_visu->objSize[i];
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
 
-        gl_obj->first = malloc(sizeof(GLint) * size);
-        gl_obj->count = malloc(sizeof(GLint) * size);
+		gl_obj->first = malloc(sizeof(GLint) * size);
+		gl_obj->count = malloc(sizeof(GLint) * size);
 		
-		if (!gl_obj->first || !gl_obj->count)
+		if (!gl_obj->first || !gl_obj->count){
+			free(gl_obj->first);
+			free(gl_obj->count);
+			gl_obj->first = NULL;
+			gl_obj->count = NULL;
 			return;
+		}
 		
 		for (int j = 0; j < size; j++){
 			gl_obj->first[j] = j * gl_obj->nbSegment;
@@ -34,23 +39,23 @@ int	main_loop(t_data_visu *data_visu) {
 
 	do{
 		float ratio;
-        int width, height;
-        mat4x4 m, p, mvp;
-        glfwGetFramebufferSize(data_visu->window, &width, &height);
-        ratio = width / (float) height;
- 
+		int width, height;
+		mat4x4 m, p, mvp;
+		glfwGetFramebufferSize(data_visu->window, &width, &height);
+		ratio = width / (float) height;
+
 		// (void)ratio;
-        glViewport(0, 0, width, height);
+		glViewport(0, 0, width, height);
 		glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 		
-        mat4x4_identity(m);
+		mat4x4_identity(m);
 		mat4x4_ortho(p, -1.0f * ratio, 1.0f * ratio, -1.0f, 1.0f, 1.f, -1.f);
-        mat4x4_mul(mvp, p, m);
+		mat4x4_mul(mvp, p, m);
 		render_text(data_visu, "LEM-IN", -0.9f * ratio, 0.9f, 0.0013f, 1.0f, 1.0f, 1.0f, mvp);
 		
-        mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
-        mat4x4_mul(mvp, p, m);
+		mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
+		mat4x4_mul(mvp, p, m);
 
 
 		for (int i = OBJS_SIZE - 1; i >=0; i--){
@@ -69,8 +74,17 @@ int	main_loop(t_data_visu *data_visu) {
 			if (i == ANT){
 				glActiveTexture(GL_TEXTURE0); 
 				glBindTexture(GL_TEXTURE_2D, data_visu->antTexture);
+
+				for (int ant_index = 0; ant_index < data_visu->data.total_ants; ant_index++){
+					glUniform2f(
+						gl_obj->ant_position_location,
+						data_visu->ants[ant_index].x,
+						data_visu->ants[ant_index].y
+					);
+					glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+				}
 				// glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
-				glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+				// glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 				// glDrawArrays(GL_LINE_LOOP, 0, 4);
 			}				
 		}
@@ -78,7 +92,7 @@ int	main_loop(t_data_visu *data_visu) {
 		t_room *rooms = data_visu->data.rooms;
 		while(rooms){
 			float x = (float)rooms->x / data_visu->width - BASIC_OFFSET;
-    		float y = (float)rooms->y / data_visu->height - BASIC_OFFSET;			
+			float y = (float)rooms->y / data_visu->height - BASIC_OFFSET;			
 			render_text(data_visu, rooms->name, x, y - 0.013f, 0.00092f, 1.0f, 1.0f, 1.0f, mvp);
 			// printf("room name: %s, x: %d, y: %d\n", rooms->name, rooms->x, rooms->y);
 			rooms = rooms->next;
@@ -89,7 +103,6 @@ int	main_loop(t_data_visu *data_visu) {
 	}
 	while( glfwGetKey(data_visu->window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
 	glfwWindowShouldClose(data_visu->window) == 0 );
-	cleanup_opengl(data_visu->gl_objects[0].vertex_array, data_visu->gl_objects[0].vertex_buffer, data_visu->gl_objects[0].program);
 	free_gl_objects(data_visu->gl_objects);
 	return (0);
 };
@@ -110,6 +123,8 @@ int	wrong_map(t_list *stdin_content){
 	return (0);
 };
 
+#include <unistd.h>
+#include <fcntl.h>
 int main(void){
 	t_list	*stdin_content = NULL;
 	t_data_visu	data_visu;
@@ -121,26 +136,43 @@ int main(void){
 		return (-1);
 	if (!stdin_content)
 		return (-1);
+
 	ft_lstprint(stdin_content);
 	
 	init_data(&data_visu.data);
 
 	if (wrong_map(stdin_content) == -1){
 		ft_lstclear(&stdin_content, &free);
+		free_rooms(data_visu.data.rooms);
 		return (-1);
 	}
 
-	ft_printf("test main bonus\n");
-	if (parsing(stdin_content, &data_visu.data) == -1) {
-		//! l'etape des ants commence
-		
-		// ft_lstprint(stdin_content);
-		// ft_lstclear(&stdin_content, &free);
-		return (-1);
-	}
+
+
+	int	saved_stdout = dup(STDOUT_FILENO);
+	if (saved_stdout == -1)
+		return (1);
+
+	fflush(stdout);
+
+	int devnull = open("/dev/null", O_WRONLY);
+	if (devnull == -1)
+		return (1);
+
+	if (dup2(devnull, STDOUT_FILENO) == -1)
+		return (1);	
+	close(devnull);	
+
+	parsing(stdin_content, &data_visu.data);
+
+	fflush(stdout);
+	if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+		return (1);
+
 	ft_lstclear(&stdin_content, &free);
 
-	print_room(&data_visu.data);
+	// print_room(&data_visu.data);
+	// ft_lstiter(data_visu.data.valid_paths, &print_onepath);
 
 	if (init_glfw(&data_visu) == -1) {
 		free_rooms(data_visu.data.rooms);
@@ -154,7 +186,10 @@ int main(void){
 		return (-1);
 	}
 
-	glfwDestroyWindow(data_visu.window);
+	if (data_visu.antTexture)
+		glDeleteTextures(1, &data_visu.antTexture);	
+	if (data_visu.window)
+		glfwDestroyWindow(data_visu.window);
 	glfwTerminate();
 
 	free_rooms(data_visu.data.rooms);

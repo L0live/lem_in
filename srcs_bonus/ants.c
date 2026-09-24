@@ -7,10 +7,10 @@
 
 GLfloat		vertices[] = {
     // position       // couleur           // coordonnées texture
-     0.03f,  0.03f,      1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
-     0.03f, -0.03f,      1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
-    -0.03f, -0.03f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
-    -0.03f,  0.03f,      1.0f, 1.0f, 0.0f,    0.0f, 1.0f
+     0.06f,  0.06f,      1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
+     0.06f, -0.06f,      1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
+    -0.06f, -0.06f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
+    -0.06f,  0.06f,      1.0f, 1.0f, 0.0f,    0.0f, 1.0f
 };
 
 GLenum	setFormat(int nrChannels){
@@ -34,18 +34,17 @@ GLuint  loadTexture(const char* filename){
 	int width, height, nrChannels;
 
 	// Load image data
-	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
 	stbi_set_flip_vertically_on_load(1); // OpenGL expects Y-axis to go upwards
-	
-	// declarer et attacher la texture
-	GLuint  antTexture;
-	glGenTextures(1, &antTexture);
-	glBindTexture(GL_TEXTURE_2D, antTexture);
-
+	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
 	if (!data){
 		ft_printf("Failed to load texture: %s\n", filename);
 		return 0;
 	}
+
+	// declarer et attacher la texture
+	GLuint  antTexture;
+	glGenTextures(1, &antTexture);
+	glBindTexture(GL_TEXTURE_2D, antTexture);
 
 	GLenum format = setFormat(nrChannels);
 	ft_printf("width %d, height %d, nrChannels %d, filename %s, format %d\n",width ,height, nrChannels, filename, format);
@@ -71,13 +70,36 @@ GLuint  loadTexture(const char* filename){
 	return (antTexture);
 };
 
+void init_position(t_data_visu *data_visu){
+	t_room		*start;
+	t_ant		*ants;
+
+	start = room_getby_id(data_visu->data.rooms, data_visu->data.start_id);
+	if (!start)
+		return ;
+
+	ants = malloc(sizeof(t_ant) * data_visu->data.total_ants);
+	if (!ants)
+		return ;
+
+	for (int i = 0; i < data_visu->data.total_ants; i++){
+		ants[i].x = (float)start->x / data_visu->width - BASIC_OFFSET;
+		ants[i].y = (float)start->y / data_visu->height - BASIC_OFFSET;
+	}
+	data_visu->ants = ants;
+}
+
 void    set_ants(t_data_visu *data_visu){
-	t_gl_object *ant = &data_visu->gl_objects[ANT];
+	t_gl_object *ant;
 
+	ant = &data_visu->gl_objects[ANT];
 	ant->vertices = vertices;
-	ant->vertices_size = sizeof(vertices);
-
+	// ant->vertices_size = sizeof(vertices);
+	ant->vertices_size = sizeof(vertices) / sizeof(vertices[0]);
+	
 	data_visu->antTexture = loadTexture("ant copy.png");
 	if (data_visu->antTexture == 0)
 		ft_printf("Erreur de set ants\n");
+	
+	init_position(data_visu);
 };

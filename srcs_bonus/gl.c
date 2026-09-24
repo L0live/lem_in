@@ -21,7 +21,7 @@ int	gl_init(t_data_visu *data_visu){
 
 			//aColor ne vec3
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
 
 
 			//aTexCoord en vec2
@@ -66,6 +66,7 @@ int	gl_init(t_data_visu *data_visu){
 
 			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
             gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
+            gl_obj->ant_position_location = glGetUniformLocation(gl_obj->program, "antPosition");
 			glUseProgram(gl_obj->program);
     		glUniform1i(gl_obj->texture_location, 0);
 		}
@@ -176,13 +177,22 @@ void cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program){
 void	free_gl_objects(t_gl_object *gl_objects){
 
     for (size_t i = 0; i < OBJS_SIZE; i++){
-        if (gl_objects[i].vertices)
-            free(gl_objects[i].vertices);
-        if (gl_objects[i].colors)
-            free(gl_objects[i].colors);
-        if (gl_objects[i].first)
-            free(gl_objects[i].first);
-        if (gl_objects[i].count)
-            free(gl_objects[i].count);                        
+
+ 		if (gl_objects[i].program)
+            glDeleteProgram(gl_objects[i].program);
+        if (gl_objects[i].vertex_buffer)
+            glDeleteBuffers(1, &gl_objects[i].vertex_buffer);
+        if (gl_objects[i].color_buffer)
+            glDeleteBuffers(1, &gl_objects[i].color_buffer);
+        if (gl_objects[i].vertex_array)
+            glDeleteVertexArrays(1, &gl_objects[i].vertex_array);
+
+		//! condition temporaire
+        if (i != ANT)
+            free(gl_objects[i].vertices);			
+			
+        free(gl_objects[i].colors);
+        free(gl_objects[i].first);
+        free(gl_objects[i].count);		
     };
 };

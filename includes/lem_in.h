@@ -58,6 +58,8 @@ t_path	*path_build_final(t_path *end_path);
 int 	valid_path_add(t_list **valid_paths, t_path *path);
 int		path_already_in_valid_path(t_data *data, t_path *path);
 void	reset_paths_visited(t_list *paths);
+t_room	**queue_to_rooms(t_list *queue, int size);
+int		clean_samerooms_paths(t_data *data);
 
 
 

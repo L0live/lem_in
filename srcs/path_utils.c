@@ -133,3 +133,118 @@ t_path *path_build_final(t_path *end_path){
 	free(ordered_rooms);
 	return (final);
 }
+
+t_room	**queue_to_rooms(t_list *queue, int size){
+
+	t_room **rooms;
+	int	i = 0;
+
+	rooms = malloc(sizeof(t_room*) * (size + 1));
+	if (!rooms)
+		return (NULL);
+
+	for (i = 0; queue; i++){
+		rooms[i] = queue->content;
+		queue = queue->next;
+	}
+	rooms[i] = NULL;
+	return (rooms);
+};
+
+void	reset_not_common_rooms(t_data *data, t_room **rooms, int size, int room_id){
+
+	(void)data;
+
+	int ids[size];
+	int	y = 0;
+	for (int i = size - 2;  i >= 1 && rooms[i]->id != room_id ; i--){
+		ids[y] = rooms[i]->id;
+		y++; 			
+	}
+
+	t_room *todelete = data->rooms;
+	while (todelete){
+
+		for (int i = 0; i < y; i++){
+			if (ids[i] == todelete->id){
+				todelete->visited = false;
+				break;			
+			}
+		}
+		todelete = todelete->next;
+	}
+}
+
+void	delete_path(t_data *data, t_list *path){
+	t_list	*current;
+	t_list	*previous;
+
+	current = data->valid_paths;
+	previous = NULL;
+
+	while (current){
+		if (current == path){
+			if (previous)
+				previous->next = current->next;
+			else
+				data->valid_paths = current->next;
+			free(current);
+			return;
+		}
+		previous = current;
+		current = current->next;
+	}
+}
+
+static int	paths_share_room(t_room **rooms_a, int size_a, t_room **rooms_b, int size_b){
+
+	for (int i = 1; i < size_a - 1; i++){
+		for (int j = 1; j < size_b - 1; j++){
+			if (rooms_a[i]->id == rooms_b[j]->id)
+				return (1);
+		}
+	}
+	return (0);
+}
+
+int	clean_samerooms_paths(t_data *data){
+	t_list	*current_list;
+	t_list	*next_list;
+	t_path	*current_path;
+	t_path	*next_path;
+	t_room	**current_rooms;
+	t_room	**next_rooms;
+
+	current_list = data->valid_paths;
+	while (current_list && current_list->next){
+		next_list = current_list->next;
+		current_path = current_list->content;
+		next_path = next_list->content;
+
+		current_rooms = queue_to_rooms(current_path->queue, current_path->size);
+		next_rooms = queue_to_rooms(next_path->queue, next_path->size);
+
+		if (!current_rooms || !next_rooms){
+			free(current_rooms);
+			free(next_rooms);
+			return (-1);
+		}
+
+		if (paths_share_room(current_rooms, current_path->size,
+				next_rooms, next_path->size)){
+			delete_path(data, next_list);
+			free(current_rooms);
+			free(next_rooms);
+
+			/* Recommence depuis le premier chemin */
+			current_list = data->valid_paths;
+			continue ;
+		}
+
+		free(current_rooms);
+		free(next_rooms);
+		current_list = current_list->next;
+	}
+
+	return (0);
+}

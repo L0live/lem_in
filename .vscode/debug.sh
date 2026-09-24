@@ -1,3 +1,3 @@
 #!/bin/bash
 
-exec "${PWD}/lem_in" < "${PWD}/map/square"
+exec "${PWD}/lem-in" < "${PWD}/map/mini"

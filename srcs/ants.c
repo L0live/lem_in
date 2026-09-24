@@ -36,23 +36,6 @@ void	remove_start_from_paths(t_data *data){
 	}
 }
 
-static t_room	**queue_to_rooms(t_list *queue, int size){
-
-	t_room **rooms;
-	int	i = 0;
-
-	rooms = malloc(sizeof(t_room*) * (size + 1));
-	if (!rooms)
-		return (NULL);
-
-	for (i = 0; queue; i++){
-		rooms[i] = queue->content;
-		queue = queue->next;
-	}
-	rooms[i] = NULL;
-	return (rooms);
-};
-
 int	ants_actions(t_data *data, t_path *path, int *id){
 	int count = 0;
 	int	path_len = ft_lstsize(path->queue);
@@ -133,6 +116,7 @@ void	attribute_ants(t_data *data) {
 		};
 		best_path->ants++;
 	};
+	// print_onepath(best_path);
 
 	if(!data->valid_paths->next)
 		remove_start_on_path(data, best_path);

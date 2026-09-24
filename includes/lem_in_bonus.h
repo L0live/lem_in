@@ -44,6 +44,8 @@ typedef struct  gl_object_s{
 	// pour les texte
 	GLint	texture_location;
 	GLint	text_color_location;
+	
+	GLint	ant_position_location;
 
 	float	*vertices;
 	int		vertices_size;
@@ -59,6 +61,17 @@ typedef struct  gl_object_s{
 } t_gl_object;
 
 
+typedef struct	s_ant{
+	float	x;
+	float	y;
+
+	t_room	*current_room;
+    t_room	*next_room;
+
+	float	progress;
+    float	speed;	
+} t_ant;
+
 typedef struct data_visu_s{
 	GLFWwindow  *window;
 	t_gl_object	gl_objects[OBJS_SIZE];
@@ -66,8 +79,10 @@ typedef struct data_visu_s{
 	int			objSize[OBJS_SIZE];
 	float		width;
 	float		height;
-	t_glyph	glyphs[128];
-	GLuint  antTexture;
+	t_glyph		glyphs[128];
+
+	GLuint		antTexture;
+	t_ant		*ants;
 } t_data_visu;
 
 

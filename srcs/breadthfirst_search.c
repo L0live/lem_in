@@ -91,14 +91,13 @@ int	bfs(t_data	*data){
 	t_path	*new_path;
 	t_room	*current_room;
 	t_room	*child_room;
+	int		added = false;
 
 	queue = NULL;
 	data->paths = NULL;
 
 	current_room = room_getby_id(data->rooms, data->start_id);
 	current_path = path_new(data, current_room, NULL);
-	if (!current_path)
-		return (-1);
 	
 	data->paths = current_path;
 	path_queue_push_back(&queue, current_path);
@@ -128,7 +127,7 @@ int	bfs(t_data	*data){
 				free_one_path_content(finale_path);
 				return (-1);
 			}
-
+			added = true;
 			continue;
 		}
 		
@@ -155,7 +154,7 @@ int	bfs(t_data	*data){
 			// ajout new chemin dans queue BFS lutilisr plus tard
 			path_queue_push_back(&queue, new_path);
 
-			if (child_room->id != data->end_id)
+			if (child_room->id != data->end_id && child_room->id != data->start_id)
 				child_room->visited = true;
 		}
 	};
@@ -168,5 +167,8 @@ int	bfs(t_data	*data){
 	// liberation des chemins saves -> save_node
 	ft_lstclear(&data->all_paths, free_one_path_content);
 	data->paths = NULL;
-	return (1);	
+	if (added == true)
+		return (1);
+	else
+		return (0);
 };

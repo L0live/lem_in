@@ -104,13 +104,17 @@ static int	handle_new_link(t_room *rooms, char *line, int start_id) {
 
 int    parsing(t_list *stdin_content, t_data *data){
 	t_list	*current = stdin_content;
-	char	*line = current->content;
+	char	*line;
 	bool	is_links_part = false;
 	int		num_line = 1;
 	int		id = 0;
-	
+
+	if (!current)
+		return (0);	
+
+	line = current->content;
 	if (!ft_isstriter(line, &ft_isdigit) || line[0] == '\0')
-		return (-1);
+	return (-1);
 
 	data->total_ants = ft_atoi(line);
 	ft_printf("%s\n", current->content);

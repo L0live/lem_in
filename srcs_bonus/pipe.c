@@ -59,7 +59,7 @@ static void	set_vertices_and_colors(t_data_visu *data_visu, t_gl_object *obj){
 				room_to_gl(room, data_visu, &x1, &y1);
 				room_to_gl(linked_room, data_visu, &x2, &y2);
 				add_pipe(obj->vertices, &verticeIndex, x1, y1, x2, y2);
-				ft_printf("room id %d\n", linked_room->id);
+				// ft_printf("room id %d\n", linked_room->id);
 			}
 		}
 		room = room->next;
