@@ -1,6 +1,24 @@
 #include "../includes/lem_in_bonus.h"
 
 
+void	free_actions_lines(t_list **lines){
+	t_list		*tmp;
+	t_actions	*actions;
+	t_actions	*next;
+
+	while (*lines){
+		tmp = (*lines)->next;
+		actions = (*lines)->content;
+		while (actions){
+			next = actions->next;
+			free(actions);
+			actions = next;
+		}
+		free(*lines);
+		*lines = tmp;
+	}
+}
+
 static t_ant *init_ants(t_data_visu *data_visu){
 	t_ant   *ants;
 	t_room  *start;
@@ -74,18 +92,26 @@ int	fill_action(t_data_visu *data_visu, t_list *action, char *action_line){
 	if (!elements)
 		return (-1);
 
-	if (!elements[0] || !ft_isstriter(elements[0], &ft_isdigit))
+	if (!elements[0] || !ft_isstriter(elements[0], &ft_isdigit)){
+		free_split(elements);
 		return (-1);
-	if (!elements[1] || !room_getby_name(data_visu->data.rooms, elements[1]))
+	}
+	if (!elements[1] || !room_getby_name(data_visu->data.rooms, elements[1])){
+		free_split(elements);
 		return (-1);
+	}
 	
 	int id = ft_atoi(elements[0]) - 1;
-	if (id < 0 || id >= data_visu->data.total_ants)
+	if (id < 0 || id >= data_visu->data.total_ants){
+		free_split(elements);
 		return (-1);
+	}
 
 	t_actions *new = malloc(sizeof(t_actions));
-	if (!new)
+	if (!new){
+		free_split(elements);
 		return (-1);
+	}
 	
 	new->ant = &data_visu->ants[id];
 	new->room = room_getby_name(data_visu->data.rooms, elements[1]);
@@ -119,11 +145,15 @@ int	pars_actions(t_list *stdin_content, t_data_visu *data_visu){
 			return (-1);
 
 		t_list *action_line = ft_lstnew(NULL);
-		if (!action_line)
+		if (!action_line){
+			free_split(actions);
 			return (-1);
+		}
 		for (int i = 0; actions[i]; i++){
-			if (fill_action(data_visu, action_line, actions[i]) == -1)
+			if (fill_action(data_visu, action_line, actions[i]) == -1){
+				free_split(actions);
 				return (-1);
+			}
 		}
 		free_split(actions);
 		ft_lstadd_back(&data_visu->actions_lines, action_line);

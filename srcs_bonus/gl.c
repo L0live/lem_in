@@ -67,6 +67,7 @@ int	gl_init(t_data_visu *data_visu){
 			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
             gl_obj->texture_direction = glGetUniformLocation(gl_obj->program, "antDirection");
             gl_obj->ant_position_location = glGetUniformLocation(gl_obj->program, "antPosition");
+			gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
 			glUseProgram(gl_obj->program);
     		glUniform1i(gl_obj->texture_location, 0);
 		}
@@ -84,14 +85,14 @@ int	gl_init(t_data_visu *data_visu){
 int	init_glfw(t_data_visu *data){
 	if (!glfwInit())
 	{
-		ft_printf("Error: glfwInit failed\n");
+		ft_printf("ERROR: glfwInit failed\n");
 		return -1;
 	}
 
 	data->window = glfwCreateWindow(800, 600, "Lem-in", NULL, NULL);
 	if (!data->window)
 	{
-		ft_printf("Error: glfwCreateWindow failed\n");
+		ft_printf("ERROR: glfwCreateWindow failed\n");
 		glfwTerminate();
 		return (-1);
 	}
@@ -99,7 +100,7 @@ int	init_glfw(t_data_visu *data){
 	glfwMakeContextCurrent(data->window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		ft_printf("Error: gladLoadGLLoader failed\n");
+		ft_printf("ERROR: gladLoadGLLoader failed\n");
 		glfwDestroyWindow(data->window);
 		glfwTerminate();
 		return (-1);
@@ -177,11 +178,11 @@ void	set_gl_objects(t_data_visu *data_visu){
 
 
 	if (set_rooms(data_visu, &data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]) == -1){
-		ft_printf("Error: set_rooms failed\n");
+		ft_printf("ERROR: set_rooms failed\n");
 		return;
 	}
 	if (set_pipe(data_visu, &data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]) == -1){
-		ft_printf("Error: set_pipe failed\n");
+		ft_printf("ERROR: set_pipe failed\n");
 		return;
 	}
 	set_font(data_visu);
@@ -209,6 +210,8 @@ void	free_gl_objects(t_gl_object *gl_objects){
             glDeleteBuffers(1, &gl_objects[i].color_buffer);
         if (gl_objects[i].vertex_array)
             glDeleteVertexArrays(1, &gl_objects[i].vertex_array);
+        if (gl_objects[i].color_buffer)
+            glDeleteVertexArrays(1, &gl_objects[i].color_buffer);
 
 		//! condition temporaire
         if (i != ANT)

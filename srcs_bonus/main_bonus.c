@@ -1,6 +1,15 @@
 #include	"../includes/lem_in_bonus.h"
 #include	<unistd.h>
 
+
+static void	cleanup_visu(t_data_visu *data_visu){
+	free_actions_lines(&data_visu->actions_lines);
+	free(data_visu->ants);
+	data_visu->ants = NULL;
+	free_rooms(data_visu->data.rooms);
+	data_visu->data.rooms = NULL;
+}
+
 void	set_first_and_count(t_gl_object *gl_obj, int size){
 
 	gl_obj->first = malloc(sizeof(GLint) * size);
@@ -150,13 +159,11 @@ int	main_loop(t_data_visu *data_visu) {
 							
 							int ant_index = ant - data_visu->ants;
 							
-							ant_direction_x[ant_index] = distX /distance;
-							ant_direction_y[ant_index] = distY /distance;
-							
 
 							if (distance > 0.000001f){
 								actions_finished = false;
-
+								ant_direction_x[ant_index] = distX /distance;
+								ant_direction_y[ant_index] = distY /distance;
 								if (distance <= 0.005){
 									ant->x = tmpX;
 									ant->y = tmpY;
@@ -285,6 +292,7 @@ int main(void){
 
 	if (pars_actions(stdin_content, &data_visu) == -1){
 		ft_lstclear(&stdin_content, &free);
+		cleanup_visu(&data_visu);
 		return (-1);
 	}
 
@@ -292,18 +300,20 @@ int main(void){
 	ft_lstclear(&stdin_content, &free);
 
 	if (init_glfw(&data_visu) == -1) {
-		free_rooms(data_visu.data.rooms);
+		cleanup_visu(&data_visu);
 		return (-1);
 	}
 
 	set_gl_objects(&data_visu);
-	if(gl_init(&data_visu))
+	if(gl_init(&data_visu)){
+		cleanup_visu(&data_visu);
 		return (-1);	
+	}
 
 	if (main_loop(&data_visu) == -1) {
 		glfwDestroyWindow(data_visu.window);
 		glfwTerminate();
-		free_rooms(data_visu.data.rooms);
+		cleanup_visu(&data_visu);
 		return (-1);
 	}
 
@@ -313,6 +323,6 @@ int main(void){
 		glfwDestroyWindow(data_visu.window);
 	glfwTerminate();
 
-	free_rooms(data_visu.data.rooms);
+	cleanup_visu(&data_visu);
 	return (0);
 };

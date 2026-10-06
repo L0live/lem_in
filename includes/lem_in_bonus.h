@@ -118,7 +118,8 @@ void 	cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program);
 void	free_gl_objects(t_gl_object *gl_objects);
 
 //actions.c
-int    pars_actions(t_list *stdin_content, t_data_visu *data_visu);
+int		pars_actions(t_list *stdin_content, t_data_visu *data_visu);
+void	free_actions_lines(t_list **lines);
 
 //ants.c
 
