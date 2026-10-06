@@ -7,11 +7,12 @@
 
 GLfloat		vertices[] = {
     // position       // couleur           // coordonnées texture
-     0.06f,  0.06f,      1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
-     0.06f, -0.06f,      1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
-    -0.06f, -0.06f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
-    -0.06f,  0.06f,      1.0f, 1.0f, 0.0f,    0.0f, 1.0f
+     0.06f,  0.08f,      1.0f, 0.0f, 0.0f,    1.0f, 1.0f,
+     0.06f, -0.08f,      1.0f, 0.0f, 0.0f,    1.0f, 0.0f,
+    -0.06f, -0.08f,      1.0f, 0.0f, 0.0f,    0.0f, 0.0f,
+    -0.06f,  0.08f,      1.0f, 1.0f, 0.0f,    0.0f, 1.0f
 };
+
 
 GLenum	setFormat(int nrChannels){
 	GLenum format;
@@ -47,7 +48,7 @@ GLuint  loadTexture(const char* filename){
 	glBindTexture(GL_TEXTURE_2D, antTexture);
 
 	GLenum format = setFormat(nrChannels);
-	ft_printf("width %d, height %d, nrChannels %d, filename %s, format %d\n",width ,height, nrChannels, filename, format);
+	// ft_printf("width %d, height %d, nrChannels %d, filename %s, format %d\n",width ,height, nrChannels, filename, format);
 	if (format == 0){
 		ft_printf("Bad format: %s\n", filename);
 		return 0;
@@ -70,23 +71,18 @@ GLuint  loadTexture(const char* filename){
 	return (antTexture);
 };
 
-void init_position(t_data_visu *data_visu){
+void	init_position(t_data_visu *data_visu){
 	t_room		*start;
-	t_ant		*ants;
 
 	start = room_getby_id(data_visu->data.rooms, data_visu->data.start_id);
 	if (!start)
 		return ;
 
-	ants = malloc(sizeof(t_ant) * data_visu->data.total_ants);
-	if (!ants)
-		return ;
-
 	for (int i = 0; i < data_visu->data.total_ants; i++){
-		ants[i].x = (float)start->x / data_visu->width - BASIC_OFFSET;
-		ants[i].y = (float)start->y / data_visu->height - BASIC_OFFSET;
+		data_visu->ants[i].x = (float)start->x / data_visu->width - BASIC_OFFSET;
+		data_visu->ants[i].y = (float)start->y / data_visu->height - BASIC_OFFSET;
+		data_visu->ants[i].current_room = start;
 	}
-	data_visu->ants = ants;
 }
 
 void    set_ants(t_data_visu *data_visu){

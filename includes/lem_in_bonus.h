@@ -17,12 +17,13 @@
 # define BASIC_OFFSET 0.5f
 # define BASIC_RADIUS 0.01f
 # define PIPE_WIDTH 0.005f
+# define ANT_STEP 0.05f
 
 # ifndef M_PI
 #  define M_PI 3.1415926535897932384626433
 # endif
 
-typedef enum e_object_type {ROOM, PIPE, TEXT, ANT} t_object_type;
+typedef enum e_object_type {PIPE, ANT, ROOM, TEXT} t_object_type;
 
 typedef struct s_glyph{
 	GLuint	texture_id;
@@ -44,6 +45,7 @@ typedef struct  gl_object_s{
 	// pour les texte
 	GLint	texture_location;
 	GLint	text_color_location;
+	GLint	texture_direction;
 	
 	GLint	ant_position_location;
 
@@ -62,15 +64,17 @@ typedef struct  gl_object_s{
 
 
 typedef struct	s_ant{
+	int		id;
 	float	x;
 	float	y;
-
 	t_room	*current_room;
-    t_room	*next_room;
-
-	float	progress;
-    float	speed;	
 } t_ant;
+
+typedef	struct s_actions{
+	t_ant				*ant;
+	t_room				*room;
+	struct s_actions 	*next;
+} t_actions;
 
 typedef struct data_visu_s{
 	GLFWwindow  *window;
@@ -83,15 +87,18 @@ typedef struct data_visu_s{
 
 	GLuint		antTexture;
 	t_ant		*ants;
+	t_list		*actions_lines; // content type : t_actions
 } t_data_visu;
 
 
 //rooms.c
 int		set_rooms(t_data_visu *data_visu, t_gl_object *obj, int obj_size);
+int		valid_room_coordonate(float x, float y, t_room	*cible);
 
 //pipe.c
 int		set_pipe(t_data_visu *data_visu, t_gl_object *obj, int obj_size);
 int		get_pipe_size(t_room *rooms);
+void	room_to_gl(t_room *room, t_data_visu *data_visu, float *x, float *y);
 
 //polices.c
 void	set_font(t_data_visu *data_visu);
@@ -109,5 +116,13 @@ int		gl_init(t_data_visu *data_visu);
 void	set_gl_objects(t_data_visu *data_visu);
 void 	cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program);
 void	free_gl_objects(t_gl_object *gl_objects);
+
+//actions.c
+int    pars_actions(t_list *stdin_content, t_data_visu *data_visu);
+
+//ants.c
+
+/* Initialise les positions des ants a start*/
+void	init_position(t_data_visu *data_visu);
 
 #endif

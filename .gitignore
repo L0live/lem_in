@@ -1,9 +1,14 @@
 *.o
 */*.o
 
+.vscode
+
 .env
 
 ./lem_in
 
 Result
 Valgrind
+
+tester/*
+tester/*/*

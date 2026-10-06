@@ -39,7 +39,7 @@ static void	add_pipe(float *vertices, int *index, float x1, float y1, float x2, 
 	vertices[(*index)++] = y2 + ny;
 };
 
-static void	room_to_gl(t_room *room, t_data_visu *data_visu, float *x, float *y){
+void	room_to_gl(t_room *room, t_data_visu *data_visu, float *x, float *y){
 	*x = (float)room->x / data_visu->width - BASIC_OFFSET;
 	*y = (float)room->y / data_visu->height - BASIC_OFFSET;
 };

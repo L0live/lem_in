@@ -48,36 +48,31 @@ int	main(void){
 
 	ft_lstclear(&stdin_content, &free);
 
-	while (1){
-
-		// t_room *rooms = data.rooms;
-		// for (; rooms; rooms = rooms->next){
-		// 	ft_printf("rooms %s visited %d\n", rooms->name, rooms->visited);
-		// }		
+	do{
 		bfs_result = bfs(&data);
 
-		if (bfs_result == -1){
+		if (bfs_result == -1 || clean_samerooms_paths(&data) == -1){
 			free_data(&data);
 			return (0);				
 		}
-		// ft_lstiter(data.valid_paths, &print_onepath);
-		clean_samerooms_paths(&data);
 		reset_visited_other_path(&data);		
 
-		if (bfs_result == 0)
-			break;		
+	} while (bfs_result);
+
+
+	if (data.valid_paths){
+		
+		reset_paths_visited(data.valid_paths);
+		remove_start_from_paths(&data);
+		
+		attribute_ants(&data);
+		if (ants_actions_loop(&data) == -1){
+			free_data(&data);
+		 	return (-1);
+		}
 	}
-
-	ft_lstiter(data.valid_paths, &print_onepath);
-
-	reset_paths_visited(data.valid_paths);
-	remove_start_from_paths(&data);
-
-	attribute_ants(&data);
-	if (ants_actions_loop(&data) == -1){
-		free_data(&data);
-		return (-1);
-	}
+	else
+		ft_printf("ERROR : No path found\n");	
 
 	free_data(&data);
 	return (0);

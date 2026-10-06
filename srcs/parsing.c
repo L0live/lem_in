@@ -102,6 +102,57 @@ static int	handle_new_link(t_room *rooms, char *line, int start_id) {
 	return (0);
 }
 
+#include <stddef.h>
+
+int	int_over_flow(const char *str){
+	char		*limit;
+	bool		negative;
+	int			limit_len;
+	int			i;
+	
+	negative = false;
+
+	if (!str || !*str)
+		return (-1);
+
+	if (*str == '-'){
+		negative = true;
+		str++;
+	}
+	if (!*str)
+		return (-1);
+
+	if (negative)
+		limit = "2147483648\0";
+	else
+		limit = "2147483647\0";
+
+	while (*str == '0')
+		str++;
+
+	if (!*str)
+		return (0);
+
+	limit_len = ft_strlen(limit);
+
+	i = 0;
+	while (str[i])
+		i++;
+
+	if (i > limit_len)
+		return (-1);
+	if (i < limit_len)
+		return (0);
+
+	for (int i = 0; str[i]; i++){
+		if (str[i] > limit[i])
+			return (-1);
+		if (str[i] < limit[i])
+			return (0);
+	}
+	return (0);
+}
+
 int    parsing(t_list *stdin_content, t_data *data){
 	t_list	*current = stdin_content;
 	char	*line;
@@ -115,6 +166,11 @@ int    parsing(t_list *stdin_content, t_data *data){
 	line = current->content;
 	if (!ft_isstriter(line, &ft_isdigit) || line[0] == '\0')
 	return (-1);
+
+	if (int_over_flow(line)){
+		data->total_ants = -1;
+		return (-1);
+	}
 
 	data->total_ants = ft_atoi(line);
 	ft_printf("%s\n", current->content);

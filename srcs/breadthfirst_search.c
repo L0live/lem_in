@@ -114,8 +114,10 @@ int	bfs(t_data	*data){
 
 			// on creer le path final avec toute les rooms des parents dans queueu
 			t_path *finale_path = path_build_final(current_path);
-			if (!finale_path)
+			if (!finale_path){
+				ft_lstclear(&data->all_paths, free_one_path_content);
 				return (-1);
+			}
 
 			if (path_already_in_valid_path(data, finale_path)){
 				free_one_path_content(finale_path);

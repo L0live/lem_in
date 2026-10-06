@@ -41,7 +41,7 @@ int	gl_init(t_data_visu *data_visu){
 			glGenBuffers(1, &gl_obj->color_buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
 
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_DYNAMIC_DRAW);
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 		}
@@ -65,7 +65,7 @@ int	gl_init(t_data_visu *data_visu){
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
-            gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
+            gl_obj->texture_direction = glGetUniformLocation(gl_obj->program, "antDirection");
             gl_obj->ant_position_location = glGetUniformLocation(gl_obj->program, "antPosition");
 			glUseProgram(gl_obj->program);
     		glUniform1i(gl_obj->texture_location, 0);
@@ -143,21 +143,44 @@ static void    set_values(t_data_visu *data_visu){
 };
 
 void	set_gl_objects(t_data_visu *data_visu){
-	data_visu->objSize[0] = count_room(data_visu->data.rooms);
-	data_visu->objSize[1] = get_pipe_size(data_visu->data.rooms);
-	data_visu->objSize[2] = data_visu->data.total_ants;
-	data_visu->objSize[3] = data_visu->objSize[0];
+	data_visu->objSize[ROOM] = count_room(data_visu->data.rooms);
+	data_visu->objSize[PIPE] = get_pipe_size(data_visu->data.rooms);
+	data_visu->objSize[ANT] = data_visu->data.total_ants;
+	data_visu->objSize[TEXT] = data_visu->objSize[ROOM];
 
-	data_visu->gl_objects[0].nbSegment = 42;
-	data_visu->gl_objects[1].nbSegment = 4;
+	data_visu->gl_objects[ROOM].nbSegment = 42;
+	data_visu->gl_objects[PIPE].nbSegment = 4;
 
     set_values(data_visu);
 
-	if (set_rooms(data_visu, &data_visu->gl_objects[0], data_visu->objSize[0]) == -1){
+
+	t_list		*actionsList;
+	t_actions	*actions;
+	t_ant		*ant;
+
+	actionsList = data_visu->actions_lines;
+	while (actionsList){
+
+		actions = actionsList->content;
+		while (actions){
+			ant = actions->ant;
+
+			ant->x = ant->x / (float)data_visu->width - BASIC_OFFSET;
+			ant->y = ant->y / (float)data_visu->height - BASIC_OFFSET;
+
+			actions = actions->next;
+		}
+		actionsList = actionsList->next;
+	}
+	
+
+
+
+	if (set_rooms(data_visu, &data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]) == -1){
 		ft_printf("Error: set_rooms failed\n");
 		return;
 	}
-	if (set_pipe(data_visu, &data_visu->gl_objects[1], data_visu->objSize[1]) == -1){
+	if (set_pipe(data_visu, &data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]) == -1){
 		ft_printf("Error: set_pipe failed\n");
 		return;
 	}

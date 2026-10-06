@@ -5,11 +5,13 @@
 float	get_radius(t_data_visu *data_visu, int rooms_size){
 	float	radius = BASIC_RADIUS;
 	float	scale = data_visu->width / sqrtf(rooms_size);
-	// float	tmp = data_visu->height / sqrtf(rooms_size);
+	float	tmp = data_visu->height / sqrtf(rooms_size);
 
-	// if(scale > tmp)
-		// scale = tmp;
-	// scale = (scale + tmp) / 2;
+	if(scale < tmp){
+		printf("TESSSST\n");
+		scale = tmp;
+	}
+	scale = (scale + tmp) / 2;
 	//! idem pour la height ? et on compare ?
 
 	// printf("initial radius : %f\nscale%f\n", radius, scale);
@@ -84,4 +86,11 @@ int	set_rooms(t_data_visu *data_visu, t_gl_object *obj, int obj_size){
 
 	set_vertices_and_colors(data_visu, obj, obj_size);
 	return (0);
+};
+
+int	valid_room_coordonate(float x, float y, t_room	*cible){
+
+	if (x == cible->x && y == cible->y)
+		return (0);
+	return (1);	
 };

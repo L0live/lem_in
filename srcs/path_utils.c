@@ -188,6 +188,7 @@ void	delete_path(t_data *data, t_list *path){
 				previous->next = current->next;
 			else
 				data->valid_paths = current->next;
+			free_one_path_content(current->content);
 			free(current);
 			return;
 		}
@@ -222,10 +223,13 @@ int	clean_samerooms_paths(t_data *data){
 		next_path = next_list->content;
 
 		current_rooms = queue_to_rooms(current_path->queue, current_path->size);
-		next_rooms = queue_to_rooms(next_path->queue, next_path->size);
-
-		if (!current_rooms || !next_rooms){
+		if (!current_rooms){
 			free(current_rooms);
+			return (-1);
+		}
+
+		next_rooms = queue_to_rooms(next_path->queue, next_path->size);
+		if (!next_rooms){
 			free(next_rooms);
 			return (-1);
 		}

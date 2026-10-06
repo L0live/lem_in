@@ -5,6 +5,7 @@ static void	clean_unused_paths(t_list *paths){
 		if (((t_path *)paths->next->content)->ants == 0){
 			t_list *tmp = paths->next;
 			paths->next = tmp->next;
+			free_one_path_content(tmp->content);
 			free(tmp);
 		}
 		else
@@ -96,8 +97,8 @@ int	ants_actions_loop(t_data *data) {
 		lines_count++;
 		// ft_printf("\tTotal ant restant : %d\n", data->total_ants);
 	}
-	ft_printf("Total d'actions :%d\n", actions_count);
-	ft_printf("Total de lignes :%d\n", lines_count);
+	// ft_printf("Total d'actions :%d\n", actions_count);
+	// ft_printf("Total de lignes :%d\n", lines_count);
 	return (0);
 };
 

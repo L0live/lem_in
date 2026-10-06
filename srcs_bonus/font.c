@@ -15,7 +15,7 @@ static GLfloat	get_text_width(t_data_visu *data_visu, const char *text, GLfloat 
 
 void	render_text( t_data_visu *data_visu,const char *text, GLfloat x, GLfloat y, GLfloat scale, GLfloat r, GLfloat g, GLfloat b, mat4x4 mvp){
 	
-	t_gl_object	*text_object = &data_visu->gl_objects[2];
+	t_gl_object	*text_object = &data_visu->gl_objects[TEXT];
 	t_glyph 	*glyph;
 	GLfloat		xpos;
 	GLfloat		ypos;

@@ -2,20 +2,24 @@
 
 int		minimum_data(t_data *data){
 	if (data->total_ants == 0){
-		ft_putstr_fd("Error : Not enough ants\n", 2);
+		ft_printf("ERROR : Not enough ants\n");
 		return (-1);
 	}
+	if (data->total_ants == -1){
+		ft_printf("ERROR : Too many ants\n");
+		return (-1);
+	}	
 	if (!data->rooms || !data->rooms->next){
-		ft_putstr_fd("Error : Not enough rooms\n", 2);
+		ft_printf("ERROR : Not enough rooms\n");
 		return (-1);
 	}
 	
 	if (data->start_id == -1){
-		ft_putstr_fd("Error : Start room not set\n", 2);
+		ft_printf("ERROR : Start room not set\n");
 		return (-1);
 	}
 	if (data->end_id == -1){
-		ft_putstr_fd("Error : End room not set\n", 2);
+		ft_printf("ERROR : End room not set\n");
 		return (-1);
 	}
 
@@ -26,11 +30,11 @@ int		minimum_data(t_data *data){
 		return (-1);
 
 	if (start->links_size == 0){
-		ft_putstr_fd("Error : Start have no link\n", 2);
+		ft_printf("ERROR : Start have no link\n");
 		return (-1);
 	}		
 	if (end->links_size == 0){
-		ft_putstr_fd("Error : End have no link\n", 2);
+		ft_printf("ERROR : End have no link\n");
 		return (-1);
 	}
 
