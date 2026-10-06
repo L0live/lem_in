@@ -1,0 +1,54 @@
+{
+   Ignore_System_DL_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   fun:_dl_open
+}
+{
+   Ignore_DBus_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   obj:*/libdbus-1.so*
+}
+{
+   Ignore_X11_CatchAll
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libX11.so*
+}
+{
+   Ignore_GLFW_CatchAll
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libglfw.so*
+}
+{
+   Ignore_Nvidia_Cond_Jumps
+   Memcheck:Cond
+   obj:*/libnvidia-glcore.so*
+}
+{
+   Ignore_Nvidia_Value_Errors
+   Memcheck:Value8
+   obj:*/libnvidia-glcore.so*
+}
+{
+   Ignore_Nvidia_GLX_Cond
+   Memcheck:Cond
+   obj:*/libGLX_nvidia.so*
+}
+{
+   Ignore_System_TLS_Get_Addr
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:malloc
+   ...
+   fun:__tls_get_addr
+}

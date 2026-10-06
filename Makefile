@@ -5,7 +5,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror -g
 CFLAGS_BONUS=$(CFLAGS) -I/usr/include/freetype2
 
-LDLIBS_BONUS=-lglfw -lGL -lm -ldl -lfreetype
+LDLIBS_BONUS=-lglfw -lGL -lm -lfreetype
+# LDLIBS_BONUS=-lglfw -lGL -lm -ldl -lfreetype
 
 SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
