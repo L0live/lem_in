@@ -53,22 +53,6 @@ int	main_loop(t_data_visu *data_visu) {
 	set_first_and_count(&data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]);
 	set_first_and_count(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]);
 
-<<<<<<< HEAD
-	// restart_label:
-	//ou while restart?
-	int     current_action = 0;
-
-	
-	float	ant_direction_x[data_visu->data.total_ants];
-	float	ant_direction_y[data_visu->data.total_ants];
-    for (int k = 0; k < data_visu->data.total_ants; k++){
-		ant_direction_x[k] = 1.0f;
-		ant_direction_y[k] = 0.0f;
-    }
-=======
-	restart_label:
->>>>>>> 63c3a556c7f6b4689c4ec34163450d140985586d
-
 	current_action = 0;
 	init_direction(data_visu, ant_direction_x, ant_direction_y);
 	init_position(data_visu);
@@ -107,7 +91,6 @@ int	main_loop(t_data_visu *data_visu) {
 			keyRestart = true;
 			current_action = 0;
 			init_position(data_visu);
-			// goto restart_label;
 		}
 		
 		keyRestart = isRestarted;
