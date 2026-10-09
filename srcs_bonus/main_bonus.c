@@ -81,7 +81,7 @@ int	main_loop(t_data_visu *data_visu) {
 		mat4x4_mul(mvp, p, m);
 
 		///pause
-		bool isPressed = (glfwGetKey(data_visu->window, GLFW_KEY_P) == GLFW_PRESS);
+		bool isPressed = (glfwGetKey(data_visu->window, GLFW_KEY_SPACE) == GLFW_PRESS);
 		if (isPressed && !keyPaused)
 			isPaused = !isPaused;
 		
@@ -115,10 +115,10 @@ int	main_loop(t_data_visu *data_visu) {
 			else if (i == PIPE){
 
 				float	time = (float)glfwGetTime();
-				float	brillance = (0.3f * sinf(time * 15.0f) + 0.5f);
+				float	shining = (0.1f * sinf(time * 10.0f) + 0.5f);
 
 				for (size_t i = 0; i < gl_obj->colors_size; i++)
-					gl_obj->colors[i] = brillance;
+					gl_obj->colors[i] = shining;
 				glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
 				glBufferSubData(GL_ARRAY_BUFFER, 0, gl_obj->colors_size * sizeof(float), gl_obj->colors);			
 				glMultiDrawArrays(GL_LINE_LOOP, gl_obj->first, gl_obj->count, data_visu->objSize[i]);

@@ -17,7 +17,7 @@
 # define BASIC_OFFSET 0.5f
 # define BASIC_RADIUS 0.01f
 # define PIPE_WIDTH 0.005f
-# define ANT_STEP 0.05f
+# define ANT_STEP 0.005f
 
 # ifndef M_PI
 #  define M_PI 3.1415926535897932384626433
