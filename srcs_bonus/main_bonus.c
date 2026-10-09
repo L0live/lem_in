@@ -169,8 +169,8 @@ int	main_loop(t_data_visu *data_visu) {
 									ant->y = tmpY;
 								}
 								else{
-									ant->x += distX * ANT_STEP;
-									ant->y += distY * ANT_STEP;
+									ant->x += ant_direction_x[ant_index] * ANT_STEP;
+									ant->y += ant_direction_y[ant_index] * ANT_STEP;
 								}
 							}
 							action = action->next;
