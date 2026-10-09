@@ -47,7 +47,7 @@ int	main_loop(t_data_visu *data_visu) {
 	set_first_and_count(&data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]);
 	set_first_and_count(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]);
 
-	restart_label:
+	// restart_label:
 	//ou while restart?
 	int     current_action = 0;
 
@@ -57,7 +57,7 @@ int	main_loop(t_data_visu *data_visu) {
     for (int k = 0; k < data_visu->data.total_ants; k++){
 		ant_direction_x[k] = 1.0f;
 		ant_direction_y[k] = 0.0f;
-    }	
+    }
 
 	init_position(data_visu);
 	do{
@@ -92,7 +92,9 @@ int	main_loop(t_data_visu *data_visu) {
 		bool isRestarted = (glfwGetKey(data_visu->window, GLFW_KEY_R) == GLFW_PRESS);
 		if (isRestarted && !keyRestart){
 			keyRestart = true;
-			goto restart_label;
+			current_action = 0;
+			init_position(data_visu);
+			// goto restart_label;
 		}
 		
 		keyRestart = isRestarted;
