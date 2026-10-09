@@ -30,12 +30,13 @@ void	set_first_and_count(t_gl_object *gl_obj, int size){
 	}
 };
 
-
-void	init_direction(t_data_visu *data_visu){
+void	init_direction(t_data_visu *data_visu, float *ant_direction_x, float *ant_direction_y){
 	
+	for (int i = 0; i < data_visu->data.total_ants; i++){
+		ant_direction_x[i] = 1.0f;
+		ant_direction_y[i] = 0.0f;
+    }	
 }
-
-
 
 #include <math.h>
 int	main_loop(t_data_visu *data_visu) {
@@ -55,13 +56,7 @@ int	main_loop(t_data_visu *data_visu) {
 	restart_label:
 
 	current_action = 0;
-
-	init_direction(data_visu);
-    for (int k = 0; k < data_visu->data.total_ants; k++){
-		ant_direction_x[k] = 1.0f;
-		ant_direction_y[k] = 0.0f;
-    }	
-
+	init_direction(data_visu, ant_direction_x, ant_direction_y);
 	init_position(data_visu);
 
 	do{
