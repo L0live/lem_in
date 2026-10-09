@@ -31,35 +31,39 @@ void	set_first_and_count(t_gl_object *gl_obj, int size){
 };
 
 
+void	init_direction(t_data_visu *data_visu){
+	
+}
+
+
 
 #include <math.h>
 int	main_loop(t_data_visu *data_visu) {
 
 	bool	isPaused = false;
 	bool	keyPaused = false;
-
 	bool	keyRestart = false;
-
-	// set_gl_objects(data_visu);
-	// if(gl_init(data_visu))
-	// 	return (-1);
+	
+	float	ant_direction_x[data_visu->data.total_ants];
+	float	ant_direction_y[data_visu->data.total_ants];
+	
+	int		current_action;
 
 	set_first_and_count(&data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]);
 	set_first_and_count(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]);
 
 	restart_label:
-	//ou while restart?
-	int     current_action = 0;
 
-	
-	float	ant_direction_x[data_visu->data.total_ants];
-	float	ant_direction_y[data_visu->data.total_ants];
+	current_action = 0;
+
+	init_direction(data_visu);
     for (int k = 0; k < data_visu->data.total_ants; k++){
 		ant_direction_x[k] = 1.0f;
 		ant_direction_y[k] = 0.0f;
     }	
 
 	init_position(data_visu);
+
 	do{
 
 		float ratio;
@@ -113,7 +117,6 @@ int	main_loop(t_data_visu *data_visu) {
 			if (i == ROOM)
 				glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 			else if (i == PIPE){
-
 				float	time = (float)glfwGetTime();
 				float	shining = (0.1f * sinf(time * 10.0f) + 0.5f);
 
@@ -142,9 +145,8 @@ int	main_loop(t_data_visu *data_visu) {
 							t_ant *ant = action->ant;
 							t_room *room = action->room;
 							
-							printf("ant (x,y) -> (%f,%f)\n", ant->x, ant->y);
-							printf("room cible (x,y) -> (%f,%f)\n", (float)ant->x, (float)room->y);
-							
+							// printf("ant (x,y) -> (%f,%f)\n", ant->x, ant->y);
+							// printf("room cible (x,y) -> (%f,%f)\n", (float)ant->x, (float)room->y);
 							float tmpX =  room->x;
 							float tmpY =  room->y;
 							
@@ -154,11 +156,9 @@ int	main_loop(t_data_visu *data_visu) {
 							float distY = tmpY - ant->y;
 							
 							float distance = sqrtf(distX * distX + distY * distY);
-
-							printf("Distance  -> %f\n", distance);
+							// printf("Distance  -> %f\n", distance);
 							
 							int ant_index = ant - data_visu->ants;
-							
 
 							if (distance > 0.000001f){
 								actions_finished = false;
