@@ -4,14 +4,14 @@
 
 float	get_radius(t_data_visu *data_visu, int rooms_size){
 	float	radius = BASIC_RADIUS;
-	float	scale = data_visu->width / sqrtf(rooms_size);
-	float	tmp = data_visu->height / sqrtf(rooms_size);
+	float	scale = (data_visu->width + data_visu->height) / sqrtf(rooms_size);
+	// float	tmp = data_visu->height / sqrtf(rooms_size);
 
-	if(scale < tmp){
-		printf("TESSSST\n");
-		scale = tmp;
-	}
-	scale = (scale + tmp) / 2;
+	// if(scale < tmp){
+		// printf("TESSSST\n");
+		// scale = tmp;
+	// }
+	// scale = (scale + tmp) / 2;
 	//! idem pour la height ? et on compare ?
 
 	// printf("initial radius : %f\nscale%f\n", radius, scale);
@@ -19,8 +19,8 @@ float	get_radius(t_data_visu *data_visu, int rooms_size){
 	// printf("radius : %f\n", radius);
 	
 	// éviter un radius trop petit ou trop grand
-	if (radius > 0.05f)
-		radius = 0.05f;
+	if (radius > 0.06f)
+		radius = 0.06f;
 	if (radius < 0.001f)
 		radius = 0.001f;
 	// printf("after radius : %f\n", radius);

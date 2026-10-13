@@ -88,7 +88,6 @@ int	init_glfw(t_data_visu *data){
 		ft_printf("ERROR: glfwInit failed\n");
 		return -1;
 	}
-
 	data->window = glfwCreateWindow(800, 600, "Lem-in", NULL, NULL);
 	if (!data->window)
 	{

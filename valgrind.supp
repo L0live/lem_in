@@ -45,10 +45,148 @@
    obj:*/libGLX_nvidia.so*
 }
 {
+   mesa_dri_flush_uninit
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libgallium-*.so
+   ...
+   fun:dri_flush
+   ...
+}
+{
    Ignore_System_TLS_Get_Addr
    Memcheck:Leak
    match-leak-kinds: reachable,definite,possible,indirect
    fun:malloc
    ...
    fun:__tls_get_addr
+}
+{
+   Ignore_Glycin_Image_Loader_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libglycin-*.so*
+}
+{
+   Ignore_GdkPixbuf_Glycin_Load_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libgdk_pixbuf-*.so*
+   ...
+   obj:*/libglycin-*.so*
+}
+{
+   Ignore_Fontconfig_Pango_FontSet_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libfontconfig.so*
+   ...
+   fun:FcFontSetList
+}
+{
+   Ignore_Fontconfig_Expat_Parse_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libfontconfig.so*
+   ...
+   obj:*/libexpat.so*
+}
+{
+   Ignore_PangoFT2_Gtk_Font_Metrics_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libpangoft2-*.so*
+   ...
+   fun:pango_context_get_metrics
+   ...
+   obj:*/libgtk-*.so*
+}
+{
+   Ignore_PangoCairo_Gtk_Font_Metrics_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libpangocairo-*.so*
+   ...
+   obj:*/libgtk-*.so*
+}
+{
+   Ignore_Glib_GObject_Gtk_Startup_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libglib-2.0.so*
+   ...
+   obj:*/libgtk-*.so*
+}
+{
+   Ignore_Gio_GDBus_Gtk_Display_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   fun:g_dbus_proxy_new_for_bus
+   ...
+   obj:*/libgtk-*.so*
+}
+{
+   Ignore_DConf_GSettings_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:*alloc
+   ...
+   obj:*/libdconfsettings.so
+   ...
+   fun:g_settings_new_full
+}
+{
+   Ignore_Glib_Thread_TLS_Leaks
+   Memcheck:Leak
+   match-leak-kinds: reachable,definite,possible,indirect
+   fun:calloc
+   ...
+   fun:allocate_dtv
+   ...
+   obj:*/libglib-2.0.so*
+}
+{
+   glycin_posix_memalign_possibly
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:posix_memalign
+   obj:*/libglycin-2.so*
+   ...
+}
+
+{
+   glycin_posix_memalign_via_pixbuf
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:posix_memalign
+   obj:*/libglycin-2.so*
+   ...
+   obj:*/libgdk_pixbuf-2.0.so*
+   ...
+}
+
+{
+   fontconfig_realloc_render_prepare
+   Memcheck:Leak
+   match-leak-kinds: definite,indirect
+   fun:realloc
+   obj:*/libfontconfig.so*
+   ...
+   fun:FcFontRenderPrepare
+   ...
 }

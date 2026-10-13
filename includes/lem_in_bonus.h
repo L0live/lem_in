@@ -15,7 +15,7 @@
 
 # define OBJS_SIZE 4
 # define BASIC_OFFSET 0.5f
-# define BASIC_RADIUS 0.01f
+# define BASIC_RADIUS 0.02f
 # define PIPE_WIDTH 0.005f
 # define ANT_STEP 0.005f
 
@@ -88,8 +88,19 @@ typedef struct data_visu_s{
 	GLuint		antTexture;
 	t_ant		*ants;
 	t_list		*actions_lines; // content type : t_actions
+	
+	float		speed;
 } t_data_visu;
 
+typedef struct s_loop_data{
+	bool	is_paused;
+	bool	key_paused;
+	bool	key_restart;
+	
+	int		current_action;
+	
+	mat4x4	mvp;
+} t_loop_data;
 
 //rooms.c
 int		set_rooms(t_data_visu *data_visu, t_gl_object *obj, int obj_size);
@@ -125,5 +136,26 @@ void	free_actions_lines(t_list **lines);
 
 /* Initialise les positions des ants a start*/
 void	init_position(t_data_visu *data_visu);
+
+
+//debug_bonus.c
+/* Print les actions des fourmis par ligne*/
+void	print_action_list(t_list *actions_list);
+
+
+//free_bonus.c
+/* */
+void	cleanup_visu(t_data_visu *data_visu);
+
+//draw.c
+void	draw_rooms(t_data_visu *data_visu, const GLfloat *mvp);
+void	draw_pipes(t_gl_object *gl_obj, int size, const GLfloat *mvp);
+void	draw_ants(t_data_visu *data_visu, t_loop_data *loop_data, float (*ant_direction)[2]);
+
+//keyboard.c
+void	keyboard_pause(t_data_visu *data_visu, t_loop_data *loop);
+bool	keyboard_restart(t_data_visu *data_visu, t_loop_data *loop);
+void	keyboard_plus(t_data_visu *data_visu, t_loop_data *loop);
+void	keyboard_minus(t_data_visu *data_visu, t_loop_data *loop);
 
 #endif
