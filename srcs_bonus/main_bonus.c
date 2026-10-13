@@ -35,70 +35,98 @@ void	init_direction(t_data_visu *data_visu, float *ant_direction_x, float *ant_d
 	for (int i = 0; i < data_visu->data.total_ants; i++){
 		ant_direction_x[i] = 1.0f;
 		ant_direction_y[i] = 0.0f;
-    }	
+	}	
+}
+
+typedef struct s_loop_data{
+	bool	is_paused;
+	bool	key_paused;
+	bool	key_restart;
+	
+	int		current_action;
+	
+	mat4x4	mvp;
+} t_loop_data;
+
+void	init_loop_data(t_data_visu *data_visu, t_loop_data *loop){
+
+	loop->current_action = 0;
+	loop->is_paused = false;
+	loop->key_paused = false;
+	loop->key_restart = false;
+
+	set_first_and_count(&data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]);
+	set_first_and_count(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]);
+}
+
+void	init_mvp(t_data_visu *data_visu, t_loop_data *loop){
+
+	float	ratio;
+	int		width;
+	int		height;
+	mat4x4	m;
+	mat4x4	p;
+	
+	glfwGetFramebufferSize(data_visu->window, &width, &height);
+
+	ratio = width / (float)height;
+	
+	glViewport(0, 0, width, height);
+	glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	mat4x4_identity(m);
+	mat4x4_ortho(p, -1.0f * ratio, 1.0f * ratio, -1.0f, 1.0f, 1.f, -1.f);
+	mat4x4_mul(loop->mvp, p, m);
+
+	render_text(data_visu, "LEM-IN", -0.9f * ratio, 0.9f, 0.0013f, 1.0f, 1.0f, 1.0f, loop->mvp);
+	
+	mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
+	mat4x4_mul(loop->mvp, p, m);
+}
+
+void	keyboard_pause(t_data_visu *data_visu, t_loop_data *loop){
+	bool is_pressed = (glfwGetKey(data_visu->window, GLFW_KEY_SPACE) == GLFW_PRESS);
+	if (is_pressed && !loop->key_paused)
+		loop->is_paused = !loop->is_paused;
+	
+	loop->key_paused = is_pressed;
+}
+
+bool	keyboard_restart(t_data_visu *data_visu, t_loop_data *loop){
+	bool is_restarted = (glfwGetKey(data_visu->window, GLFW_KEY_R) == GLFW_PRESS);
+
+	if (is_restarted && !loop->key_restart){
+		loop->key_restart = true;
+		loop->current_action = 0;
+		init_position(data_visu);
+		return (true);
+	}
+	loop->key_restart = is_restarted;
+	return (false);
 }
 
 #include <math.h>
 int	main_loop(t_data_visu *data_visu) {
 
-	bool	isPaused = false;
-	bool	keyPaused = false;
-	bool	keyRestart = false;
-	
-	float	ant_direction_x[data_visu->data.total_ants];
-	float	ant_direction_y[data_visu->data.total_ants];
-	
-	int		current_action;
+	t_loop_data 	loop_data;
+	float			ant_direction_x[data_visu->data.total_ants];
+	float			ant_direction_y[data_visu->data.total_ants];
 
-	set_first_and_count(&data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]);
-	set_first_and_count(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE]);
-
-	restart_label:
-
-	current_action = 0;
+	init_loop_data(data_visu, &loop_data);
 	init_direction(data_visu, ant_direction_x, ant_direction_y);
 	init_position(data_visu);
 
 	do{
+		init_mvp(data_visu, &loop_data);
 
-		float ratio;
-		int width, height;
-		mat4x4 m, p, mvp;
-		glfwGetFramebufferSize(data_visu->window, &width, &height);
-		ratio = width / (float) height;
-
-		glViewport(0, 0, width, height);
-		glClearColor(0.08f, 0.09f, 0.12f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		keyboard_pause(data_visu, &loop_data);
 		
-		mat4x4_identity(m);
-		mat4x4_ortho(p, -1.0f * ratio, 1.0f * ratio, -1.0f, 1.0f, 1.f, -1.f);
-		mat4x4_mul(mvp, p, m);
-		render_text(data_visu, "LEM-IN", -0.9f * ratio, 0.9f, 0.0013f, 1.0f, 1.0f, 1.0f, mvp);
-		
-		mat4x4_ortho(p, -0.7f * ratio, 0.7f * ratio, -0.7f, 0.7f, 1.f, -1.f);
-		mat4x4_mul(mvp, p, m);
+		if (keyboard_restart(data_visu, &loop_data))
+			continue;
 
-		///pause
-		bool isPressed = (glfwGetKey(data_visu->window, GLFW_KEY_SPACE) == GLFW_PRESS);
-		if (isPressed && !keyPaused)
-			isPaused = !isPaused;
-		
-		keyPaused = isPressed;
-		/////
-
-		///restart
-		bool isRestarted = (glfwGetKey(data_visu->window, GLFW_KEY_R) == GLFW_PRESS);
-		if (isRestarted && !keyRestart){
-			keyRestart = true;
-			goto restart_label;
-		}
-		
-		keyRestart = isRestarted;
-		/////
-
-		if (isPaused)
-			render_text(data_visu, "PAUSE", -0.0f , 0.0f, 0.0042f, 1.0f, 1.0f, 1.0f, mvp);
+		if (loop_data.is_paused)
+			render_text(data_visu, "PAUSE", -0.0f , 0.0f, 0.0042f, 1.0f, 1.0f, 1.0f, loop_data.mvp);
 		
 		for (int i = 0; i < OBJS_SIZE; i++){
 			if (i == TEXT)
@@ -108,7 +136,7 @@ int	main_loop(t_data_visu *data_visu) {
 			glUseProgram(gl_obj->program);
 			glBindVertexArray(gl_obj->vertex_array);
 
-			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+			glUniformMatrix4fv(gl_obj->mvp_location, 1, GL_FALSE, (const GLfloat*) loop_data.mvp);
 			if (i == ROOM)
 				glMultiDrawArrays(GL_TRIANGLE_FAN, gl_obj->first, gl_obj->count, data_visu->objSize[i]);
 			else if (i == PIPE){
@@ -125,10 +153,10 @@ int	main_loop(t_data_visu *data_visu) {
 				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, data_visu->antTexture);
 
-				if(isPaused == false){
+				if(loop_data.is_paused == false){
 
 					t_list *line = data_visu->actions_lines;
-					for (int actions_index = 0; line && actions_index < current_action; actions_index++)
+					for (int actions_index = 0; line && actions_index < loop_data.current_action; actions_index++)
 					line = line->next;
 					
 					bool actions_finished = true;
@@ -172,7 +200,7 @@ int	main_loop(t_data_visu *data_visu) {
 						}
 					
 						if (actions_finished)
-							current_action++;
+							loop_data.current_action++;
 					}
 				}
 
@@ -188,14 +216,14 @@ int	main_loop(t_data_visu *data_visu) {
 		while(rooms){
 			float x = (float)rooms->x / data_visu->width - BASIC_OFFSET;
 			float y = (float)rooms->y / data_visu->height - BASIC_OFFSET;			
-			render_text(data_visu, rooms->name, x, y - 0.013f, 0.00092f, 1.0f, 1.0f, 1.0f, mvp);
+			render_text(data_visu, rooms->name, x, y - 0.013f, 0.00092f, 1.0f, 1.0f, 1.0f, loop_data.mvp);
 			// printf("room name: %s, x: %d, y: %d\n", rooms->name, rooms->x, rooms->y);
 			rooms = rooms->next;
 		}
 
 		glfwSwapBuffers(data_visu->window);
 
-		if (isPaused)
+		if (loop_data.is_paused)
 			glfwWaitEventsTimeout(0.1);
 		else		
 			glfwPollEvents();
