@@ -139,9 +139,8 @@ void	free_gl_objects(t_gl_object *gl_objects){
         if (gl_objects[i].color_buffer)
             glDeleteVertexArrays(1, &gl_objects[i].color_buffer);
 
-		// //! condition temporaire
-        // if (i != ANT)
-        //     free(gl_objects[i].vertices);			
+        if (i != ANT)
+            free(gl_objects[i].vertices);			
 			
         free(gl_objects[i].colors);
         free(gl_objects[i].first);

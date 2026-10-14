@@ -57,7 +57,8 @@ void	init_mvp(t_data_visu *data_visu, t_loop_data *loop){
 	
 	char *speed = ft_itoa(data_visu->speed * 1000);
 	render_text(data_visu, speed, -0.79f * ratio, 0.65f, 0.0010f, 1.0f, 1.0f, 1.0f, loop->mvp);
-	
+	free(speed);
+
 	render_text(data_visu, "Pause (SPACE)", -0.88f * ratio, 0.55f, 0.0010f, 1.0f, 1.0f, 1.0f, loop->mvp);
 	render_text(data_visu, "Restart (R)", -0.91f * ratio, 0.45f, 0.0010f, 1.0f, 1.0f, 1.0f, loop->mvp);
 
