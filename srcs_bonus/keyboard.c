@@ -24,8 +24,7 @@ bool	keyboard_restart(t_data_visu *data_visu, t_loop_data *loop){
 	return (false);
 }
 
-void	keyboard_plus(t_data_visu *data_visu, t_loop_data *loop){
-	(void) loop;
+void	keyboard_plus(t_data_visu *data_visu){
 	bool is_plus_pressed  = (glfwGetKey(data_visu->window, GLFW_KEY_KP_ADD) == GLFW_PRESS) || 
                         (glfwGetKey(data_visu->window, GLFW_KEY_EQUAL) == GLFW_PRESS);
 
@@ -33,8 +32,7 @@ void	keyboard_plus(t_data_visu *data_visu, t_loop_data *loop){
 		data_visu->speed += 0.0003f;
 }
 
-void	keyboard_minus(t_data_visu *data_visu, t_loop_data *loop){
-	(void) loop;
+void	keyboard_minus(t_data_visu *data_visu){
 	bool is_minus_pressed = (glfwGetKey(data_visu->window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) || 
 							(glfwGetKey(data_visu->window, GLFW_KEY_MINUS) == GLFW_PRESS);
 

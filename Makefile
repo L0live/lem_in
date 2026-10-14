@@ -12,7 +12,7 @@ SRCS_FOLDER=srcs/
 SRCS_BONUS_FOLDER=srcs_bonus/
 
 SRCS=main.c utils.c parsing.c structs_utils.c debug.c free.c ants.c breadthfirst_search.c path_utils.c
-SRCS_BONUS=main_bonus.c rooms.c pipe.c font.c shaders.c ants.c gl.c actions.c debug_bonus.c free_bonus.c draw.c keyboard.c ../glad/src/glad.c
+SRCS_BONUS=main_bonus.c rooms.c pipe.c font.c shaders.c ants.c gl.c gl_init.c actions.c debug_bonus.c free_bonus.c draw.c keyboard.c ../glad/src/glad.c
 SRCS_BONUS_COMMON = utils.c parsing.c structs_utils.c debug.c free.c path_utils.c
 
 OBJS_FOLDER=objs/

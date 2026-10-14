@@ -128,6 +128,34 @@ void	set_gl_objects(t_data_visu *data_visu);
 void 	cleanup_opengl(GLuint vertex_array, GLuint vertex_buffer, GLuint program);
 void	free_gl_objects(t_gl_object *gl_objects);
 
+//gl_init.c
+/*
+** Crée et configure le VAO/VBO d'un objet OpenGL selon son type :
+**   - ANT  : vertices entrelacés (pos vec2 + couleur vec3 + texCoord vec2)
+**   - TEXT : buffer dynamique vide (quad vec4 : pos + texCoord) rempli au rendu
+**   - autre (ROOM, PIPE...) : positions vec2 + buffer de couleurs vec3 séparé
+** Le VAO et le VBO sont unbind à la fin de la fonction.
+**
+** gl_obj : objet dont on initialise les buffers
+** type   : type de l'objet (t_object_type : ROOM, PIPE, ANT, TEXT)
+*/
+void	set_objects_buffers(t_gl_object *gl_obj, size_t type);
+
+/*
+** Récupère les emplacements (locations) des uniforms du shader de l'objet :
+**   - TEXT : "text", "textColor"
+**   - ANT  : "MVP", "antDirection", "antPosition", "antTexture"
+**            (active aussi le blending pour la transparence et
+**             lie le sampler de texture à l'unité 0)
+**   - autre : "MVP", "objectColor"
+** Le programme shader (gl_obj->program) doit déjà être créé.
+**
+** gl_obj : objet dont on récupère les uniforms
+** type   : type de l'objet (t_object_type : ROOM, PIPE, ANT, TEXT)
+*/
+void	set_objects_uniform_location(t_gl_object *gl_obj, size_t type);
+
+
 //actions.c
 int		pars_actions(t_list *stdin_content, t_data_visu *data_visu);
 void	free_actions_lines(t_list **lines);
@@ -155,7 +183,7 @@ void	draw_ants(t_data_visu *data_visu, t_loop_data *loop_data, float (*ant_direc
 //keyboard.c
 void	keyboard_pause(t_data_visu *data_visu, t_loop_data *loop);
 bool	keyboard_restart(t_data_visu *data_visu, t_loop_data *loop);
-void	keyboard_plus(t_data_visu *data_visu, t_loop_data *loop);
-void	keyboard_minus(t_data_visu *data_visu, t_loop_data *loop);
+void	keyboard_plus(t_data_visu *data_visu);
+void	keyboard_minus(t_data_visu *data_visu);
 
 #endif

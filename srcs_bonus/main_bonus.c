@@ -102,8 +102,8 @@ static int	main_loop(t_data_visu *data_visu) {
 		
 		if (keyboard_restart(data_visu, &loop_data))
 			continue;
-		keyboard_plus(data_visu, &loop_data);
-		keyboard_minus(data_visu, &loop_data);
+		keyboard_plus(data_visu);
+		keyboard_minus(data_visu);
 
 		draw_pipes(&data_visu->gl_objects[PIPE], data_visu->objSize[PIPE], (const GLfloat*) loop_data.mvp);
 		draw_ants(data_visu, &loop_data, ant_direction);

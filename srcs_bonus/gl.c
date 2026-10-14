@@ -5,76 +5,15 @@ int	gl_init(t_data_visu *data_visu){
 	for (size_t i = 0; i < OBJS_SIZE; i++){
 		t_gl_object *gl_obj = &data_visu->gl_objects[i];
 
-		glGenVertexArrays(1, &gl_obj->vertex_array);
-		glBindVertexArray(gl_obj->vertex_array);
-		
-		glGenBuffers(1, &gl_obj->vertex_buffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gl_obj->vertex_buffer);
-
-		if(i == ANT){
-			// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-			glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
-			
-			//aPos en vec2
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-
-			//aColor ne vec3
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(2 * sizeof(float)));
-
-
-			//aTexCoord en vec2
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
-		}
-		else if (i == TEXT){
-            glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void *)0);
-		}
-		else{
-			glBufferData(GL_ARRAY_BUFFER, gl_obj->vertices_size * sizeof(float) , gl_obj->vertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-	    	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*) 0);
-
-			glGenBuffers(1, &gl_obj->color_buffer);
-			glBindBuffer(GL_ARRAY_BUFFER, gl_obj->color_buffer);
-
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * gl_obj->colors_size, gl_obj->colors, GL_DYNAMIC_DRAW);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-		}
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
+		set_objects_buffers(gl_obj, i);
 
 		gl_obj->program = createProgram((t_object_type)i);
 		if (gl_obj->program == 0){
 			cleanup_opengl(gl_obj->vertex_array, gl_obj->vertex_buffer, gl_obj->program);
 			return (-1);
 		}
-
-		if (i == TEXT){
-			// gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
-            gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "text");
-            gl_obj->text_color_location = glGetUniformLocation(gl_obj->program, "textColor");
-        }
-		else if (i == ANT){
-			// activer la transparence
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
-            gl_obj->texture_direction = glGetUniformLocation(gl_obj->program, "antDirection");
-            gl_obj->ant_position_location = glGetUniformLocation(gl_obj->program, "antPosition");
-			gl_obj->texture_location = glGetUniformLocation(gl_obj->program, "antTexture");
-			glUseProgram(gl_obj->program);
-    		glUniform1i(gl_obj->texture_location, 0);
-		}
-		else{
-			gl_obj->mvp_location = glGetUniformLocation(gl_obj->program, "MVP");
-			gl_obj->color_location = glGetUniformLocation(gl_obj->program, "objectColor");
-		}
+	
+		set_objects_uniform_location(gl_obj, i);
 	};
 
 	glfwSetInputMode(data_visu->window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -83,27 +22,26 @@ int	gl_init(t_data_visu *data_visu){
 };
 
 int	init_glfw(t_data_visu *data){
-	if (!glfwInit())
-	{
+	if (!glfwInit()){
 		ft_printf("ERROR: glfwInit failed\n");
 		return -1;
 	}
+
 	data->window = glfwCreateWindow(800, 600, "Lem-in", NULL, NULL);
-	if (!data->window)
-	{
+	if (!data->window){
 		ft_printf("ERROR: glfwCreateWindow failed\n");
 		glfwTerminate();
 		return (-1);
 	}
 
 	glfwMakeContextCurrent(data->window);
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
 		ft_printf("ERROR: gladLoadGLLoader failed\n");
 		glfwDestroyWindow(data->window);
 		glfwTerminate();
 		return (-1);
 	}
+	
 	glfwSwapInterval(1);
 	return (0);
 };
@@ -129,9 +67,7 @@ static void    set_values(t_data_visu *data_visu){
 		rooms = rooms->next;
 	}
 
-	// data_visu->width = max_x - min_x || 1.0f;
 	data_visu->width = (max_x - min_x == 0) ? 1.0f : max_x - min_x;
-	// data_visu->height = max_y - min_y || 1.0f;
 	data_visu->height = (max_y - min_y == 0) ? 1.0f : max_y - min_y;
 
 	rooms = data_visu->data.rooms;
@@ -147,12 +83,9 @@ void	set_gl_objects(t_data_visu *data_visu){
 	data_visu->objSize[PIPE] = get_pipe_size(data_visu->data.rooms);
 	data_visu->objSize[ANT] = data_visu->data.total_ants;
 	data_visu->objSize[TEXT] = data_visu->objSize[ROOM];
-
 	data_visu->gl_objects[ROOM].nbSegment = 42;
 	data_visu->gl_objects[PIPE].nbSegment = 4;
-
     set_values(data_visu);
-
 
 	t_list		*actionsList;
 	t_actions	*actions;
@@ -160,21 +93,15 @@ void	set_gl_objects(t_data_visu *data_visu){
 
 	actionsList = data_visu->actions_lines;
 	while (actionsList){
-
 		actions = actionsList->content;
 		while (actions){
 			ant = actions->ant;
-
 			ant->x = ant->x / (float)data_visu->width - BASIC_OFFSET;
 			ant->y = ant->y / (float)data_visu->height - BASIC_OFFSET;
-
 			actions = actions->next;
 		}
 		actionsList = actionsList->next;
 	}
-	
-
-
 
 	if (set_rooms(data_visu, &data_visu->gl_objects[ROOM], data_visu->objSize[ROOM]) == -1){
 		ft_printf("ERROR: set_rooms failed\n");
@@ -212,9 +139,9 @@ void	free_gl_objects(t_gl_object *gl_objects){
         if (gl_objects[i].color_buffer)
             glDeleteVertexArrays(1, &gl_objects[i].color_buffer);
 
-		//! condition temporaire
-        if (i != ANT)
-            free(gl_objects[i].vertices);			
+		// //! condition temporaire
+        // if (i != ANT)
+        //     free(gl_objects[i].vertices);			
 			
         free(gl_objects[i].colors);
         free(gl_objects[i].first);
