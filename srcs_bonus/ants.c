@@ -93,7 +93,7 @@ void    set_ants(t_data_visu *data_visu){
 	// ant->vertices_size = sizeof(vertices);
 	ant->vertices_size = sizeof(vertices) / sizeof(vertices[0]);
 	
-	data_visu->antTexture = loadTexture("ant copy.png");
+	data_visu->antTexture = loadTexture("textures/ant2.png");
 	if (data_visu->antTexture == 0)
 		ft_printf("Erreur de set ants\n");
 	
